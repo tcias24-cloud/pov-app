@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite Final</title>
+    <title>POV Inspeções - Elite Final V16</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
-        #app-ui-container { display: block; }
+        #app-ui-container { display: block; width: 100%; }
         .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
         .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 15px; font-size: 13px; font-weight: 600; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
@@ -45,7 +45,9 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 850px; padding: 40px; box-sizing: border-box; margin: 0 auto; }
+        
+        /* O CONTAINER DE PDF AGORA TEM UMA LARGURA INQUEBRÁVEL */
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 850px; padding: 40px; box-sizing: border-box; margin: 0; }
     </style>
 </head>
 <body>
@@ -290,6 +292,9 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
+        // ==========================================
+        // V16: A MANOBRA DA LONA (EXPANSÃO FÍSICA DO DOM)
+        // ==========================================
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -301,14 +306,17 @@
                 if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
             }
 
+            // 1. Ocultar a Interface
             document.getElementById('app-ui-container').style.display = 'none';
             document.body.style.backgroundColor = '#ffffff';
+            
+            // 2. FORÇAR A LARGURA DO ECRÃ FÍSICO A 850px (Evita o Clipping do Mobile)
+            document.body.style.width = '850px';
             
             const pdfZone = document.getElementById('pdf-render-zone');
             pdfZone.style.display = 'block';
 
             let htmlString = `
-                <div style="padding: 40px; font-family: 'Montserrat', sans-serif; color: #000; background: #fff; width: 850px; max-width: 850px; margin: 0 auto; box-sizing: border-box;">
                     <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px;">
                         <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
                             ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
@@ -323,6 +331,7 @@
             `;
 
             memoriaApp.forEach((item, index) => {
+                // Conversão forçada de Enters em <br> reais
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 
                 htmlString += `
@@ -339,8 +348,8 @@
                                 <div style="clear: both;"></div>
                             </div>
                             
-                            <!-- CORREÇÃO DA GUILHOTINA: Width exato, wrap ativado, overflow removido -->
-                            <div style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; width: 400px; max-width: 400px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
+                            <!-- BLOCO DE SEGURANÇA MÁXIMA: 380px absolutos, normal white-space -->
+                            <div style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; width: 380px; display: block; white-space: normal; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
                             
                             <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                                 ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
@@ -360,7 +369,6 @@
                 `;
             }
 
-            htmlString += `</div>`; 
             pdfZone.innerHTML = htmlString;
             window.scrollTo(0, 0);
 
@@ -374,6 +382,8 @@
                 };
 
                 html2pdf().set(opt).from(pdfZone).save().then(() => {
+                    // 3. Restaurar a App e a largura original do ecrã do telemóvel
+                    document.body.style.width = '100%';
                     pdfZone.style.display = 'none';
                     pdfZone.innerHTML = '';
                     document.body.style.backgroundColor = '#050505';

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POV Inspeções - Elite V11.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
+        .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
+        
+        .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 15px; font-size: 13px; font-weight: 600; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-acao:active { opacity: 0.8; }
+        .btn-guardar { background-color: #d4af37; color: #000; display: none; margin-top: 15px;}
+        .btn-pdf { background-color: #d4af37; color: #000; margin-top: 20px; } 
+        
+        .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .input-meta, .select-divisao { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 14px; font-family: inherit; }
+        .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
+        .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
+        
+        /* MÓDULO IN-APP CAMERA COM GRELHA DE ALINHAMENTO */
+        #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
+        #videoElement { width: 100%; display: block; object-fit: cover; }
+        .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .grid-line { position: absolute; background: rgba(255, 255, 255, 0.5); box-shadow: 0 0 2px rgba(0,0,0,0.8); }
+        .v-line-1 { left: 33.33%; width: 1px; height: 100%; }
+        .v-line-2 { left: 66.66%; width: 1px; height: 100%; }
+        .h-line-1 { top: 33.33%; width: 100%; height: 1px; }
+        .h-line-2 { top: 66.66%; width: 100%; height: 1px; }
+        #btnDisparoLente { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: #d4af37; color: #000; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; font-size: 12px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        #previewImagem { width: 100%; max-height: 250px; object-fit: cover; border-radius: 6px; margin-bottom: 15px; display: none; border: 1px solid #333; }
+        
+        .painel-ditado { display: none; align-items: center; gap: 10px; margin-bottom: 15px; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .btn-icone-mic { background-color: #ff3b30; color: white; border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; }
+        .btn-icone-mic.recording { background-color: #ff0000; animation: pulse 1s infinite; }
+        .visor-texto { width: 100%; min-height: 60px; padding: 10px; border-radius: 6px; border: none; background: transparent; color: #fff; font-size: 14px; resize: none; font-family: inherit; }
+        .visor-texto:focus { outline: none; }
+        
+        .status { font-size: 11px; color: #666; margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 600; letter-spacing: 1px; }
+        
+        #canvasAssinatura { width: 100%; height: 150px; background: #fff; border-radius: 6px; cursor: crosshair; touch-action: none; margin-bottom: 10px; }
+        .btn-limpar-canvas { background: transparent; border: 1px solid #666; color: #888; padding: 8px; font-size: 11px; text-transform: uppercase; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 15px;}
+        
+        .foto-item-ui { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #d4af37; display: flex; align-items: flex-start; gap: 12px; }
+        .ui-img-box { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; }
+        .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
+        .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
+
+        /* LAYOUT PDF LVMH */
+        #area-impressao { display: none; background-color: #ffffff; color: #000000; padding: 60px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; }
+        .pdf-cover { text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px; }
+        .pdf-brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; }
+        .pdf-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 42px; color: #111; margin: 0 0 15px 0; text-transform: capitalize; line-height: 1.1; }
+        .pdf-location { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px; }
+        .pdf-item { display: flex; align-items: stretch; margin-bottom: 40px; page-break-inside: avoid; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 30px;}
+        .pdf-img-box { width: 320px; height: 220px; background-color: #ececec; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #ddd;}
+        .pdf-item-content { flex: 1; padding: 10px 0 10px 30px; display: flex; flex-direction: column; justify-content: space-between; }
+        .pdf-item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 15px; }
+        .pdf-category { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
+        .pdf-ref { font-size: 10px; color: #999; }
+        .pdf-description { font-family: 'Playfair Display', serif; font-size: 16px; color: #222; line-height: 1.6; margin: 0; flex: 1; }
+        .pdf-metadata { margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; letter-spacing: 0.5px; border-top: 1px dotted #ccc; padding-top: 10px; }
+        .pdf-signature-block { margin-top: 60px; page-break-inside: avoid; text-align: center; padding-top: 40px; border-top: 1px solid #e0e0e0; }
+        .pdf-signature-img { max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px; }
+        .pdf-signature-text { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>📍 1. Módulo White-Label</h2>
+        <div class="input-group">
+            <input type="text" id="inputAgencia" class="input-meta" placeholder="Agência (Ex: ERA Leiria)" style="border-color: #d4af37;">
+        </div>
+        <div class="input-group">
+            <input type="text" id="inputTitulo" class="input-meta" placeholder="Título (Ex: Moradia T4 Luxo)">
+            <button id="micTitulo" class="btn-mic-pequeno">🎙️</button>
+        </div>
+        <div class="input-group">
+            <input type="text" id="inputLocal" class="input-meta" placeholder="Localização (Ex: Cascais, Centro)">
+            <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📷 2. Auditoria e Composição Ótica</h2>
+        <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
+            <option value="Exterior / Fachada">Exterior / Fachada</option>
+            <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
+            <option value="Cozinha">Cozinha</option>
+            <option value="Quarto">Quarto</option>
+            <option value="Casa de Banho">Casa de Banho</option>
+        </select>
+
+        <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
+        
+        <!-- O NOVO MOTOR DE CÂMERA IN-APP -->
+        <div id="moduloCamera">
+            <video id="videoElement" autoplay playsinline></video>
+            <div class="grid-overlay">
+                <div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div>
+                <div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div>
+            </div>
+            <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
+            <canvas id="canvasOculto" style="display:none;"></canvas>
+        </div>
+        
+        <div class="status" id="micStatus">Pronto para operar.</div>
+        
+        <img id="previewImagem" src="" alt="Preview">
+        
+        <div class="painel-ditado" id="painelDitado">
+            <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
+            <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica..."></textarea>
+        </div>
+        
+        <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
+    </div>
+
+    <div class="card">
+        <h2>✍️ 3. Assinatura Digital</h2>
+        <canvas id="canvasAssinatura"></canvas>
+        <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
+    </div>
+
+    <div class="card">
+        <h2>🗂️ 4. Dossier de Elite</h2>
+        <div id="log-ui">Ainda sem registos na memória.</div>
+        <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE LUXO (PDF)</button>
+        <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
+    </div>
+
+    <!-- TEMPLATE PDF EDITORIAL -->
+    <div id="area-impressao">
+        <div class="pdf-cover">
+            <div id="pdfAgenciaImovel" class="pdf-brand-logo">RELATÓRIO DE VISTORIA TÉCNICA</div>
+            <h1 id="pdfTituloImovel" class="pdf-title">Imóvel Não Identificado</h1>
+            <div id="pdfLocalImovel" class="pdf-location">Localização Não Definida</div>
+        </div>
+        <div id="log-pdf"></div>
+        <div class="pdf-signature-block" id="blocoAssinaturaPdf" style="display: none;">
+            <img id="imgAssinaturaPdf" class="pdf-signature-img" src="">
+            <div class="pdf-signature-text">Validação e Conformidade do Proprietário</div>
+        </div>
+    </div>
+
+    <script>
+        const inputAgencia = document.getElementById('inputAgencia');
+        const inputTitulo = document.getElementById('inputTitulo');
+        const inputLocal = document.getElementById('inputLocal');
+        const selectDivisao = document.getElementById('selectDivisao');
+        const btnLigarLente = document.getElementById('btnLigarLente');
+        const moduloCamera = document.getElementById('moduloCamera');
+        const videoElement = document.getElementById('videoElement');
+        const btnDisparoLente = document.getElementById('btnDisparoLente');
+        const canvasOculto = document.getElementById('canvasOculto');
+        const previewImagem = document.getElementById('previewImagem');
+        const painelDitado = document.getElementById('painelDitado');
+        const visorNota = document.getElementById('visorNota');
+        const guardarBtn = document.getElementById('guardarBtn');
+        const micStatus = document.getElementById('micStatus');
+        const logUi = document.getElementById('log-ui');
+        const logPdf = document.getElementById('log-pdf');
+        
+        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v11')) || [];
+        let metadados = JSON.parse(localStorage.getItem('pov_meta_v11')) || { agencia: "", titulo: "", local: "" };
+        let tempImagemBase64 = "";
+        let streamAtivo = null;
+
+        inputAgencia.value = metadados.agencia; inputTitulo.value = metadados.titulo; inputLocal.value = metadados.local;
+        function guardarMetadados() {
+            metadados = { agencia: inputAgencia.value, titulo: inputTitulo.value, local: inputLocal.value };
+            localStorage.setItem('pov_meta_v11', JSON.stringify(metadados));
+        }
+        inputAgencia.addEventListener('input', guardarMetadados); inputTitulo.addEventListener('input', guardarMetadados); inputLocal.addEventListener('input', guardarMetadados);
+
+        // MOTOR WEBRTC (CÂMERA IN-APP)
+        btnLigarLente.addEventListener('click', async () => {
+            try {
+                streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElement.srcObject = streamAtivo;
+                moduloCamera.style.display = "block";
+                btnLigarLente.style.display = "none";
+                previewImagem.style.display = "none";
+                painelDitado.style.display = "none";
+                guardarBtn.style.display = "none";
+                micStatus.innerText = "Alinhe as paredes verticais com as linhas da grelha.";
+            } catch (err) {
+                alert("Bloqueio de Segurança: O navegador impediu o acesso à câmera.");
+                micStatus.innerText = "Acesso à lente negado.";
+            }
+        });
+
+        btnDisparoLente.addEventListener('click', () => {
+            canvasOculto.width = videoElement.videoWidth;
+            canvasOculto.height = videoElement.videoHeight;
+            const ctx = canvasOculto.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, canvasOculto.width, canvasOculto.height);
+            
+            tempImagemBase64 = canvasOculto.toDataURL('image/jpeg', 0.8);
+            previewImagem.src = tempImagemBase64;
+            
+            // Desligar Lente
+            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
+            moduloCamera.style.display = "none";
+            btnLigarLente.style.display = "block";
+            previewImagem.style.display = "block";
+            painelDitado.style.display = "flex";
+            visorNota.value = "";
+            micStatus.innerText = "Captura Ótica Sucesso. Dite o relatório.";
+        });
+
+        // Assinatura
+        const canvas = document.getElementById('canvasAssinatura');
+        const ctxCanvas = canvas.getContext('2d');
+        let assinando = false; let temAssinatura = false;
+        function resizeCanvas() { const rect = canvas.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; ctxCanvas.lineWidth = 2; ctxCanvas.lineCap = 'round'; ctxCanvas.strokeStyle = '#000'; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
+        const startAssinatura = (e) => { assinando = true; const pos = getPos(e); ctxCanvas.beginPath(); ctxCanvas.moveTo(pos.x, pos.y); };
+        const drawAssinatura = (e) => { if (assinando) { const pos = getPos(e); ctxCanvas.lineTo(pos.x, pos.y); ctxCanvas.stroke(); temAssinatura = true; } };
+        const endAssinatura = () => { assinando = false; };
+        canvas.addEventListener('mousedown', startAssinatura); canvas.addEventListener('mousemove', drawAssinatura); canvas.addEventListener('mouseup', endAssinatura);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startAssinatura(e); }, {passive: false}); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawAssinatura(e); }, {passive: false}); canvas.addEventListener('touchend', endAssinatura);
+        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; });
+
+        function renderizarInterface() {
+            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; logPdf.innerHTML = ""; return; }
+            logUi.innerHTML = ""; logPdf.innerHTML = "";
+            memoriaApp.forEach((item, index) => {
+                logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${item.texto}</p></div></div>`;
+                logPdf.innerHTML += `<div class="pdf-item"><div class="pdf-img-box" style="background-image: url('${item.imagem}');"></div><div class="pdf-item-content"><div><div class="pdf-item-header"><span class="pdf-category">${item.categoria}</span><span class="pdf-ref">REF. 0${index + 1}</span></div><p class="pdf-description">${item.texto}</p></div><div class="pdf-metadata">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div></div></div>`;
+            });
+        }
+        renderizarInterface();
+
+        visorNota.addEventListener('input', function() { guardarBtn.style.display = (tempImagemBase64 !== "" && visorNota.value.trim().length > 0) ? "block" : "none"; });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function ativarDitado(inputId, btnId) {
+            if (!SpeechRecognition) return;
+            const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.lang = 'pt-PT';
+            const inputTarget = document.getElementById(inputId); const btnTarget = document.getElementById(btnId);
+            recognition.onstart = () => { btnTarget.classList.add('recording'); };
+            recognition.onresult = (e) => { inputTarget.value = (inputTarget.value + " " + e.results[e.resultIndex][0].transcript).trim(); if(inputId === 'visorNota') guardarBtn.style.display = "block"; guardarMetadados(); };
+            recognition.onerror = () => { btnTarget.classList.remove('recording'); }; recognition.onend = () => { btnTarget.classList.remove('recording'); };
+            try { recognition.start(); } catch(e) {}
+        }
+        document.getElementById('micTitulo').addEventListener('click', () => ativarDitado('inputTitulo', 'micTitulo'));
+        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
+        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+
+        guardarBtn.addEventListener('click', function() {
+            guardarBtn.style.display = "none"; 
+            const concluirGuardar = (coordsText) => {
+                memoriaApp.push({ categoria: selectDivisao.value, imagem: tempImagemBase64, texto: visorNota.value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
+                localStorage.setItem('pov_db_v11', JSON.stringify(memoriaApp)); renderizarInterface();
+              

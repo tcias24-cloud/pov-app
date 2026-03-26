@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Enterprise V19.1</title>
+    <title>POV Inspeções - Enterprise V20</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -162,19 +162,33 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        let metadados = JSON.parse(localStorage.getItem('pov_meta_v19')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
-        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v19')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
-        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v19')) || [];
+        // MUDANÇA DE DB PARA V20 - GARANTE ARRANQUE LIMPO
+        let metadados = JSON.parse(localStorage.getItem('pov_meta_v20')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
+        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v20')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
+        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v20')) || [];
         let tempImagemBase64 = "";
         let streamAtivo = null;
 
-        const inputsMeta = ['Agencia', 'AMI', 'Referencia', 'Local', 'Preco', 'NomeProp', 'ContactoProp', 'MoradaProp'];
-        inputsMeta.forEach(id => {
-            const el = document.getElementById('input' + id);
-            let prop = id.charAt(0).toLowerCase() + id.slice(1);
+        // CORREÇÃO 1: MAPEAMENTO DIRETO E ABSOLUTO (SEM ERROS DE MAIÚSCULAS/MINÚSCULAS)
+        const mapMeta = [
+            { id: 'inputAgencia', key: 'agencia' },
+            { id: 'inputAMI', key: 'ami' },
+            { id: 'inputReferencia', key: 'ref' },
+            { id: 'inputLocal', key: 'local' },
+            { id: 'inputPreco', key: 'preco' },
+            { id: 'inputNomeProp', key: 'nomeProp' },
+            { id: 'inputContactoProp', key: 'contactoProp' },
+            { id: 'inputMoradaProp', key: 'moradaProp' }
+        ];
+
+        mapMeta.forEach(b => {
+            const el = document.getElementById(b.id);
             if(el) {
-                el.value = metadados[prop] || "";
-                el.addEventListener('input', () => { metadados[prop] = el.value; localStorage.setItem('pov_meta_v19', JSON.stringify(metadados)); });
+                el.value = metadados[b.key] || "";
+                el.addEventListener('input', (e) => { 
+                    metadados[b.key] = e.target.value; 
+                    localStorage.setItem('pov_meta_v20', JSON.stringify(metadados)); 
+                });
             }
         });
 
@@ -191,14 +205,14 @@
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão cirúrgica: 800px para poupar RAM nos documentos
+                        let maxW = docKey === 'logo' ? 400 : 800; 
                         let w = img.width, h = img.height;
                         if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); // Compressão Jpeg agressiva (0.7) para evitar Memory Leaks
-                        localStorage.setItem('pov_docs_v19', JSON.stringify(docsApp));
+                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
+                        localStorage.setItem('pov_docs_v20', JSON.stringify(docsApp));
                         lbl.classList.add('loaded');
                         if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', '');
                     }
@@ -220,7 +234,8 @@
             let textoAtual = document.getElementById('visorNota').value.trim();
             let novaLinha = textoAtual.length > 0 ? '\n' : '';
             document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
-            document.getElementById('guardarBtn').style.display = "block";
+            // Atualiza o botão de guardar caso o utilizador interaja
+            if (tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
         }
 
         document.getElementById('btnLigarLente').addEventListener('click', async () => {
@@ -253,7 +268,10 @@
             document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex";
             document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Captura Sucesso. Dite a vistoria.";
+            document.getElementById('micStatus').innerText = "Captura Sucesso. Dite a vistoria ou guarde diretamente.";
+            
+            // CORREÇÃO 2: MOSTRAR BOTÃO DE GUARDAR IMEDIATAMENTE (NÃO EXIGE TEXTO)
+            document.getElementById('guardarBtn').style.display = "block";
         });
 
         const canvasAssinatura = document.getElementById('canvasAssinatura');
@@ -288,7 +306,7 @@
                 let tEx = target.value.trim();
                 let novo = e.results[e.resultIndex][0].transcript.trim(); 
                 target.value = tEx.length > 0 ? tEx + " " + novo : novo;
-                if(inputId === 'visorNota') document.getElementById('guardarBtn').style.display = "block"; 
+                if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block"; 
             };
             rec.onend = () => { btn.classList.remove('recording'); };
             try { rec.start(); } catch(e) {}
@@ -301,18 +319,22 @@
             if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; return; }
             logUi.innerHTML = "";
             memoriaApp.forEach((item) => {
-                logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${item.texto}</p></div></div>`;
+                let textoAmigavel = item.texto.length > 0 ? item.texto : "Sem descrição adicionada.";
+                logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${textoAmigavel}</p></div></div>`;
             });
         }
         renderizarInterface();
 
-        document.getElementById('visorNota').addEventListener('input', function() { document.getElementById('guardarBtn').style.display = (tempImagemBase64 !== "" && this.value.trim().length > 0) ? "block" : "none"; });
+        // Geração do Botão mantida caso escreva (apesar de agora aparecer logo)
+        document.getElementById('visorNota').addEventListener('input', function() { 
+            if(tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block"; 
+        });
 
         document.getElementById('guardarBtn').addEventListener('click', function() {
             this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                localStorage.setItem('pov_db_v19', JSON.stringify(memoriaApp));
+                localStorage.setItem('pov_db_v20', JSON.stringify(memoriaApp));
                 renderizarInterface();
                 tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
             };
@@ -400,6 +422,8 @@
 
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
+                if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem comentários registados.</span>";
+                
                 htmlString += `
                 <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
                     <tr>
@@ -459,7 +483,6 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                // CORREÇÃO CRÍTICA DE SINTAXE APLICADA (margin: [15, 15, 15, 15],)
                 const opt = {
                     margin: [15, 15, 15, 15],
                     filename: nomeFicheiroFinal,
@@ -479,7 +502,7 @@
 
         document.getElementById('limparBtn').addEventListener('click', function() {
             if(confirm("PERIGO: Esta ação formata a App. Tem a certeza?")) {
-                localStorage.removeItem('pov_db_v19'); localStorage.removeItem('pov_meta_v19'); localStorage.removeItem('pov_docs_v19');
+                localStorage.removeItem('pov_db_v20'); localStorage.removeItem('pov_meta_v20'); localStorage.removeItem('pov_docs_v20');
                 window.location.reload();
             }
         });

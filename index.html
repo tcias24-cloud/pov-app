@@ -21,7 +21,6 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        /* MÓDULO IN-APP CAMERA COM GRELHA DE ALINHAMENTO */
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
         .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -50,7 +49,6 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
 
-        /* LAYOUT PDF LVMH */
         #area-impressao { display: none; background-color: #ffffff; color: #000000; padding: 60px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; }
         .pdf-cover { text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px; }
         .pdf-brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; }
@@ -99,7 +97,6 @@
 
         <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
         
-        <!-- O NOVO MOTOR DE CÂMERA IN-APP -->
         <div id="moduloCamera">
             <video id="videoElement" autoplay playsinline></video>
             <div class="grid-overlay">
@@ -135,7 +132,6 @@
         <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
     </div>
 
-    <!-- TEMPLATE PDF EDITORIAL -->
     <div id="area-impressao">
         <div class="pdf-cover">
             <div id="pdfAgenciaImovel" class="pdf-brand-logo">RELATÓRIO DE VISTORIA TÉCNICA</div>
@@ -179,7 +175,6 @@
         }
         inputAgencia.addEventListener('input', guardarMetadados); inputTitulo.addEventListener('input', guardarMetadados); inputLocal.addEventListener('input', guardarMetadados);
 
-        // MOTOR WEBRTC (CÂMERA IN-APP)
         btnLigarLente.addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -191,7 +186,7 @@
                 guardarBtn.style.display = "none";
                 micStatus.innerText = "Alinhe as paredes verticais com as linhas da grelha.";
             } catch (err) {
-                alert("Bloqueio de Segurança: O navegador impediu o acesso à câmera.");
+                alert("Permita o acesso à câmera nas definições do seu navegador.");
                 micStatus.innerText = "Acesso à lente negado.";
             }
         });
@@ -205,7 +200,6 @@
             tempImagemBase64 = canvasOculto.toDataURL('image/jpeg', 0.8);
             previewImagem.src = tempImagemBase64;
             
-            // Desligar Lente
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
             moduloCamera.style.display = "none";
             btnLigarLente.style.display = "block";
@@ -213,9 +207,9 @@
             painelDitado.style.display = "flex";
             visorNota.value = "";
             micStatus.innerText = "Captura Ótica Sucesso. Dite o relatório.";
+            guardarBtn.style.display = "none";
         });
 
-        // Assinatura
         const canvas = document.getElementById('canvasAssinatura');
         const ctxCanvas = canvas.getContext('2d');
         let assinando = false; let temAssinatura = false;
@@ -259,5 +253,44 @@
             guardarBtn.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: selectDivisao.value, imagem: tempImagemBase64, texto: visorNota.value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                localStorage.setItem('pov_db_v11', JSON.stringify(memoriaApp)); renderizarInterface();
-              
+                localStorage.setItem('pov_db_v11', JSON.stringify(memoriaApp));
+                renderizarInterface();
+                tempImagemBase64 = ""; visorNota.value = ""; previewImagem.style.display = "none"; painelDitado.style.display = "none"; micStatus.innerText = "Registo de Luxo guardado e indexado.";
+            };
+
+            micStatus.innerText = "A buscar satélites GPS...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); },
+                    (err) => { concluirGuardar("Coordenadas encriptadas / Sinal GPS bloqueado"); },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else { concluirGuardar("GPS não suportado pelo hardware."); }
+        });
+
+        document.getElementById('gerarPdfBtn').addEventListener('click', function() {
+            if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
+            const area = document.getElementById('area-impressao');
+            document.getElementById('pdfAgenciaImovel').innerText = inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE";
+            document.getElementById('pdfTituloImovel').innerText = inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo";
+            document.getElementById('pdfLocalImovel').innerText = inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo";
+            
+            if (temAssinatura) { document.getElementById('imgAssinaturaPdf').src = canvas.toDataURL('image/png'); document.getElementById('blocoAssinaturaPdf').style.display = "block"; } 
+            else { document.getElementById('blocoAssinaturaPdf').style.display = "none"; }
+            
+            area.style.display = "block"; micStatus.innerText = "A compilar Dossier de Luxo. Aguarde..."; this.innerText = "A RENDERIZAR...";
+            
+            html2pdf().set({ margin: 0, filename: `POV_Inspeção_${inputTitulo.value.trim().replace(/ /g, "_")}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(area).save().then(() => {
+                area.style.display = "none"; micStatus.innerText = "Pronto para operar."; this.innerText = "GERAR DOSSIER DE LUXO (PDF)";
+            });
+        });
+
+        document.getElementById('limparBtn').addEventListener('click', function() {
+            if(confirm("PERIGO: Esta ação apaga toda a memória e limpa a App. Confirma formatação total?")) {
+                localStorage.removeItem('pov_db_v11'); localStorage.removeItem('pov_meta_v11'); memoriaApp = [];
+                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; logUi.innerHTML = "Sistema formatado."; logPdf.innerHTML = ""; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; previewImagem.style.display = "none"; painelDitado.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

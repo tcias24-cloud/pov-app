@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V12</title>
+    <title>POV Inspeções - Elite V13</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
+        
+        /* CONTENTOR DA APP PRINCIPAL */
+        #app-ui-container { display: block; }
+        
         .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
         
@@ -53,94 +57,103 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* CONTENTOR DE RENDERIZAÇÃO PDF - INICIALMENTE ESCONDIDO */
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 800px; padding: 40px; box-sizing: border-box; margin: 0 auto; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>📍 1. Módulo White-Label</h2>
-        <div class="input-group">
-            <input type="text" id="inputAgencia" class="input-meta" placeholder="Agência (Ex: ERA Leiria)" style="border-color: #d4af37;">
-        </div>
-        <div class="input-group">
-            <input type="text" id="inputTitulo" class="input-meta" placeholder="Título (Ex: Moradia T4 Luxo)">
-            <button id="micTitulo" class="btn-mic-pequeno">🎙️</button>
-        </div>
-        <div class="input-group">
-            <input type="text" id="inputLocal" class="input-meta" placeholder="Localização (Ex: Cascais, Centro)">
-            <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>📷 2. Auditoria e Composição Ótica</h2>
-        <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
-            <option value="Exterior / Fachada">Exterior / Fachada</option>
-            <option value="Hall de Entrada">Hall de Entrada</option>
-            <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
-            <option value="Cozinha">Cozinha</option>
-            <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
-            <option value="Quarto">Quarto</option>
-            <option value="Casa de Banho">Casa de Banho</option>
-            <option value="Escritório">Escritório</option>
-            <option value="Garagem">Garagem</option>
-            <option value="Jardim / Piscina">Jardim / Piscina</option>
-            <option value="Varanda / Terraço">Varanda / Terraço</option>
-            <option value="Lavandaria">Lavandaria</option>
-            <option value="Cave / Arrumos">Cave / Arrumos</option>
-        </select>
-
-        <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
-        
-        <div id="moduloCamera">
-            <video id="videoElement" autoplay playsinline></video>
-            <div class="grid-overlay">
-                <div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div>
-                <div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div>
+    <!-- INTERFACE DA APP -->
+    <div id="app-ui-container">
+        <div class="card">
+            <h2>📍 1. Módulo White-Label</h2>
+            <div class="input-group">
+                <input type="text" id="inputAgencia" class="input-meta" placeholder="Agência (Ex: ERA Leiria)" style="border-color: #d4af37;">
             </div>
-            <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
-            <canvas id="canvasOculto" style="display:none;"></canvas>
-        </div>
-        
-        <div class="status" id="micStatus">Pronto para operar.</div>
-        
-        <img id="previewImagem" src="" alt="Preview">
-        
-        <div class="painel-ditado" id="painelDitado">
-            <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
-            <div style="width: 100%;">
-                <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica (m², chão, etc)..."></textarea>
+            <div class="input-group">
+                <input type="text" id="inputTitulo" class="input-meta" placeholder="Título (Ex: Moradia T4 Luxo)">
+                <button id="micTitulo" class="btn-mic-pequeno">🎙️</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização (Ex: Cascais, Centro)">
+                <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
             </div>
         </div>
-        
-        <div class="painel-tags" id="painelTags">
-            <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
-            <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos de Alta Qualidade')">+ Acabamentos</button>
-            <button class="smart-tag" onclick="adicionarTag('🔑 Imóvel Pronto a Habitar')">+ Pronto Habitar</button>
-            <button class="smart-tag" onclick="adicionarTag('🌳 Vista Desafogada / Zona Tranquila')">+ Vista / Paz</button>
-            <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas e Funcionais')">+ Áreas</button>
-            <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Estado de Conservação')">+ Conservação</button>
+
+        <div class="card">
+            <h2>📷 2. Auditoria e Composição Ótica</h2>
+            <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
+                <option value="Exterior / Fachada">Exterior / Fachada</option>
+                <option value="Hall de Entrada">Hall de Entrada</option>
+                <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Casa de Banho">Casa de Banho</option>
+                <option value="Escritório">Escritório</option>
+                <option value="Garagem">Garagem</option>
+                <option value="Jardim / Piscina">Jardim / Piscina</option>
+                <option value="Varanda / Terraço">Varanda / Terraço</option>
+                <option value="Lavandaria">Lavandaria</option>
+                <option value="Cave / Arrumos">Cave / Arrumos</option>
+            </select>
+
+            <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
+            
+            <div id="moduloCamera">
+                <video id="videoElement" autoplay playsinline></video>
+                <div class="grid-overlay">
+                    <div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div>
+                    <div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div>
+                </div>
+                <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
+                <canvas id="canvasOculto" style="display:none;"></canvas>
+            </div>
+            
+            <div class="status" id="micStatus">Pronto para operar.</div>
+            
+            <img id="previewImagem" src="" alt="Preview">
+            
+            <div class="painel-ditado" id="painelDitado">
+                <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
+                <div style="width: 100%;">
+                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica (m², chão, etc)..."></textarea>
+                </div>
+            </div>
+            
+            <div class="painel-tags" id="painelTags">
+                <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
+                <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos de Alta Qualidade')">+ Acabamentos</button>
+                <button class="smart-tag" onclick="adicionarTag('🔑 Imóvel Pronto a Habitar')">+ Pronto Habitar</button>
+                <button class="smart-tag" onclick="adicionarTag('🌳 Vista Desafogada / Zona Tranquila')">+ Vista / Paz</button>
+                <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas e Funcionais')">+ Áreas</button>
+                <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Estado de Conservação')">+ Conservação</button>
+            </div>
+            
+            <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
         </div>
-        
-        <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
+
+        <div class="card">
+            <h2>✍️ 3. Assinatura Digital</h2>
+            <canvas id="canvasAssinatura"></canvas>
+            <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
+        </div>
+
+        <div class="card">
+            <h2>🗂️ 4. Dossier de Elite</h2>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do PDF (Ex: Vistoria_Moradia)">
+            </div>
+            
+            <div id="log-ui">Ainda sem registos na memória.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE LUXO (PDF)</button>
+            <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>✍️ 3. Assinatura Digital</h2>
-        <canvas id="canvasAssinatura"></canvas>
-        <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
-    </div>
-
-    <div class="card">
-        <h2>🗂️ 4. Dossier de Elite</h2>
-        <div class="input-group" style="margin-bottom: 20px;">
-            <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do PDF (Ex: Vistoria_Moradia)">
-        </div>
-        
-        <div id="log-ui">Ainda sem registos na memória.</div>
-        <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE LUXO (PDF)</button>
-        <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
-    </div>
+    <!-- ZONA DE RENDERIZAÇÃO DO PDF -->
+    <div id="pdf-render-zone"></div>
 
     <script>
         const inputAgencia = document.getElementById('inputAgencia');
@@ -289,7 +302,7 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // V12: INJEÇÃO DOM FÍSICO (Resolve cortes, esmagamento e assinatura em falta)
+        // O SISTEMA MILITAR DE RENDERIZAÇÃO NATIVA (V13)
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -301,50 +314,42 @@
                 if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
             }
 
-            micStatus.innerText = "A injetar Shadow DOM para gerar o PDF... Aguarde 2 segundos.";
-            this.innerText = "A PROCESSAR...";
+            // 1. Ocultar a Interface do Utilizador (A App desaparece)
+            document.getElementById('app-ui-container').style.display = 'none';
+            document.body.style.backgroundColor = '#ffffff';
+            
+            // 2. Mostrar a zona de PDF
+            const pdfZone = document.getElementById('pdf-render-zone');
+            pdfZone.style.display = 'block';
 
-            // 1. Cria um contentor escondido na página real (o telemóvel é obrigado a renderizar isto)
-            const pdfContainer = document.createElement('div');
-            pdfContainer.style.position = 'absolute';
-            pdfContainer.style.top = '-9999px';
-            pdfContainer.style.left = '0';
-            pdfContainer.style.width = '800px'; 
-            pdfContainer.style.backgroundColor = '#ffffff';
-            pdfContainer.style.color = '#000000';
-            pdfContainer.style.padding = '40px';
-            pdfContainer.style.fontFamily = "'Montserrat', sans-serif";
-            pdfContainer.style.zIndex = '-1';
-
-            // Reduzi a margem inferior do título para a página não ficar vazia
+            // 3. Injetar o HTML com "background-image" para garantir que a foto NUNCA é esmagada
             let htmlString = `
-                <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 25px;">
-                    <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
+                <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px;">
+                    <div style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
                         ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
                     </div>
                     <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 10px 0;">
                         ${inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo"}
                     </h1>
-                    <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
                         ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
                     </div>
                 </div>
             `;
 
-            // Usa "inline-block" e "float". É impossível o PDF cortar isto a meio.
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 htmlString += `
-                <div style="page-break-inside: avoid; display: inline-block; width: 100%; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;">
-                    <div style="float: left; width: 320px; height: 210px; border: 1px solid #ddd; background-color: #ececec; overflow: hidden;">
-                        <img src="${item.imagem}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                    </div>
+                <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; overflow: hidden;">
+                    <!-- IMAGEM VIA BACKGROUND-SIZE COVER PARA PROPORÇÕES PERFEITAS -->
+                    <div style="float: left; width: 320px; height: 210px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div>
+                    
                     <div style="margin-left: 350px;">
-                        <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px;">
-                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px;">${item.categoria}</span>
-                            <span style="font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
+                        <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; overflow: hidden;">
+                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span>
+                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
                         </div>
-                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 90px;">${textoFormatado}</p>
+                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px;">${textoFormatado}</p>
                         <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                             ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
                         </div>
@@ -354,34 +359,38 @@
             });
 
             if (temAssinatura) {
+                // Captura do base64 assegurada ANTES da injeção
                 const assinaturaBase64 = canvas.toDataURL('image/png');
                 htmlString += `
-                <div style="page-break-inside: avoid; display: inline-block; width: 100%; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 25px;">
+                <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;">
                     <img src="${assinaturaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
                     <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">VALIDAÇÃO E ASSINATURA DIGITAL DO PROPRIETÁRIO</div>
                 </div>
                 `;
             }
 
-            pdfContainer.innerHTML = htmlString;
-            document.body.appendChild(pdfContainer);
+            pdfZone.innerHTML = htmlString;
+            
+            // 4. Forçar o telemóvel a fazer scroll para cima (evita PDFs em branco)
+            window.scrollTo(0, 0);
 
-            // 2. Esperar 1.5 segundos EXACTOS para o Android renderizar a assinatura na memória
+            // 5. PAUSA DE 1.5 SEGUNDOS: O Android/iOS gasta este tempo a processar o ecrã
             setTimeout(() => {
                 const opt = {
                     margin: [15, 15, 15, 15],
                     filename: nomeFicheiroFinal,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(pdfContainer).save().then(() => {
-                    // 3. Limpar a prova do crime do DOM
-                    document.body.removeChild(pdfContainer);
+                html2pdf().set(opt).from(pdfZone).save().then(() => {
+                    // 6. Restaurar a App e apagar as provas
+                    pdfZone.style.display = 'none';
+                    pdfZone.innerHTML = '';
+                    document.body.style.backgroundColor = '#050505';
+                    document.getElementById('app-ui-container').style.display = 'block';
                     micStatus.innerText = "Dossier emitido com sucesso.";
-                    document.getElementById('gerarPdfBtn').innerText = "GERAR DOSSIER DE LUXO (PDF)";
                 });
             }, 1500); 
         });

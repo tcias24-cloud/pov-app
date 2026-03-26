@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.5</title>
+    <title>POV Inspeções - Elite V11.6</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; transition: background-color 0.3s; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
         .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
         
@@ -48,30 +48,12 @@
         .ui-img-box { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; }
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
-
-        /* CSS DO PDF CORRIGIDO PARA ISOLAMENTO (Sem absolute/z-index negativo) */
-        #area-impressao { display: none; background-color: #ffffff; color: #000000; padding: 50px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; margin: 0 auto; }
-        .pdf-cover { text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px; }
-        .pdf-brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; }
-        .pdf-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 15px 0; text-transform: capitalize; line-height: 1.2; }
-        .pdf-location { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px; }
-        .pdf-item { display: flex; align-items: stretch; margin-bottom: 30px; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; page-break-inside: avoid; }
-        .pdf-img-box { width: 320px; height: 210px; object-fit: cover; flex-shrink: 0; border: 1px solid #ddd; background-color: #ececec; }
-        .pdf-item-content { flex: 1; padding: 5px 0 5px 25px; display: flex; flex-direction: column; justify-content: flex-start; }
-        .pdf-item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; }
-        .pdf-category { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
-        .pdf-ref { font-size: 10px; color: #999; }
-        .pdf-description { font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; flex: 1; }
-        .pdf-metadata { margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; letter-spacing: 0.5px; border-top: 1px dotted #ccc; padding-top: 10px; }
-        .pdf-signature-block { margin-top: 40px; page-break-inside: avoid; text-align: center; padding-top: 30px; border-top: 1px solid #e0e0e0; }
-        .pdf-signature-img { max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px; }
-        .pdf-signature-text { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div class="card app-ui">
+    <div class="card">
         <h2>📍 1. Módulo White-Label</h2>
         <div class="input-group">
             <input type="text" id="inputAgencia" class="input-meta" placeholder="Agência (Ex: ERA Leiria)" style="border-color: #d4af37;">
@@ -86,7 +68,7 @@
         </div>
     </div>
 
-    <div class="card app-ui">
+    <div class="card">
         <h2>📷 2. Auditoria e Composição Ótica</h2>
         <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
             <option value="Exterior / Fachada">Exterior / Fachada</option>
@@ -128,36 +110,29 @@
         <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
     </div>
 
-    <div class="card app-ui">
+    <div class="card">
         <h2>✍️ 3. Assinatura Digital</h2>
         <canvas id="canvasAssinatura"></canvas>
         <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
     </div>
 
-    <div class="card app-ui">
+    <div class="card">
         <h2>🗂️ 4. Dossier de Elite</h2>
+        <!-- CAMPO PARA NOME DO FICHEIRO ADICIONADO AQUI -->
+        <div class="input-group" style="margin-bottom: 20px;">
+            <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do PDF (Ex: Vistoria_Moradia)">
+        </div>
+        
         <div id="log-ui">Ainda sem registos na memória.</div>
         <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE LUXO (PDF)</button>
         <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
-    </div>
-
-    <div id="area-impressao">
-        <div class="pdf-cover">
-            <div id="pdfAgenciaImovel" class="pdf-brand-logo">RELATÓRIO DE VISTORIA TÉCNICA</div>
-            <h1 id="pdfTituloImovel" class="pdf-title">Imóvel Não Identificado</h1>
-            <div id="pdfLocalImovel" class="pdf-location">Localização Não Definida</div>
-        </div>
-        <div id="log-pdf"></div>
-        <div class="pdf-signature-block" id="blocoAssinaturaPdf" style="display: none;">
-            <img id="imgAssinaturaPdf" class="pdf-signature-img" src="">
-            <div class="pdf-signature-text">Validação e Conformidade do Proprietário</div>
-        </div>
     </div>
 
     <script>
         const inputAgencia = document.getElementById('inputAgencia');
         const inputTitulo = document.getElementById('inputTitulo');
         const inputLocal = document.getElementById('inputLocal');
+        const inputNomePdf = document.getElementById('inputNomePdf');
         const selectDivisao = document.getElementById('selectDivisao');
         const btnLigarLente = document.getElementById('btnLigarLente');
         const moduloCamera = document.getElementById('moduloCamera');
@@ -170,7 +145,6 @@
         const guardarBtn = document.getElementById('guardarBtn');
         const micStatus = document.getElementById('micStatus');
         const logUi = document.getElementById('log-ui');
-        const logPdf = document.getElementById('log-pdf');
         
         let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v11')) || [];
         let metadados = JSON.parse(localStorage.getItem('pov_meta_v11')) || { agencia: "", titulo: "", local: "" };
@@ -242,11 +216,10 @@
         document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; });
 
         function renderizarInterface() {
-            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; logPdf.innerHTML = ""; return; }
-            logUi.innerHTML = ""; logPdf.innerHTML = "";
+            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; return; }
+            logUi.innerHTML = "";
             memoriaApp.forEach((item, index) => {
                 logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${item.texto}</p></div></div>`;
-                logPdf.innerHTML += `<div class="pdf-item"><img class="pdf-img-box" src="${item.imagem}"><div class="pdf-item-content"><div><div class="pdf-item-header"><span class="pdf-category">${item.categoria}</span><span class="pdf-ref">REF. 0${index + 1}</span></div><p class="pdf-description">${item.texto}</p></div><div class="pdf-metadata">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div></div></div>`;
             });
         }
         renderizarInterface();
@@ -286,53 +259,87 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // TÁTICA DE ISOLAMENTO DO DOM PARA O MOTOR DE PDF
+        // NOVO MOTOR DE RENDERIZAÇÃO INVISÍVEL
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
-            const area = document.getElementById('area-impressao');
-            const cards = document.querySelectorAll('.app-ui');
-            
-            document.getElementById('pdfAgenciaImovel').innerText = inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE";
-            document.getElementById('pdfTituloImovel').innerText = inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo";
-            document.getElementById('pdfLocalImovel').innerText = inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo";
-            
-            if (temAssinatura) { document.getElementById('imgAssinaturaPdf').src = canvas.toDataURL('image/png'); document.getElementById('blocoAssinaturaPdf').style.display = "block"; } 
-            else { document.getElementById('blocoAssinaturaPdf').style.display = "none"; }
-            
-            // 1. Esconder tudo o resto e mostrar apenas a área de impressão
-            cards.forEach(card => card.style.display = 'none');
-            document.body.style.backgroundColor = "#ffffff";
-            document.body.style.padding = "0";
-            
-            window.scrollTo(0, 0);
-            area.style.display = "block";
-            micStatus.innerText = "A processar " + memoriaApp.length + " fotografias...";
-            
-            // 2. Dar tempo (800ms) para as imagens carregarem no DOM isolado
-            setTimeout(() => {
-                html2pdf().set({ 
-                    margin: [15, 15, 15, 15], 
-                    filename: `POV_Inspecao.pdf`, 
-                    image: { type: 'jpeg', quality: 0.98 }, 
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 850 }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                }).from(area).save().then(() => {
-                    // 3. Restaurar a App e a sua cor original
-                    area.style.display = "none";
-                    document.body.style.backgroundColor = "#050505";
-                    document.body.style.padding = "15px";
-                    cards.forEach(card => card.style.display = 'block');
-                    micStatus.innerText = "Pronto para operar."; 
-                });
-            }, 800); 
+            // LÓGICA DO NOME DO FICHEIRO
+            let nomeFicheiroFinal = inputNomePdf.value.trim();
+            if (nomeFicheiroFinal === "") {
+                const tituloLimpo = inputTitulo.value.trim().replace(/\s+/g, '_') || 'Imovel';
+                nomeFicheiroFinal = `POV_${tituloLimpo}_${new Date().getTime()}.pdf`;
+            } else {
+                if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
+            }
+
+            micStatus.innerText = "A renderizar PDF via bypass gráfico...";
+            this.innerText = "A PROCESSAR...";
+
+            // CONSTRUÇÃO DO HTML 100% VIRTUAL
+            let htmlString = `
+            <div style="padding: 40px; font-family: 'Montserrat', sans-serif; color: #000; background: #fff; width: 800px; max-width: 800px;">
+                <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px;">
+                    <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px;">
+                        ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
+                    </div>
+                    <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 15px 0;">
+                        ${inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo"}
+                    </h1>
+                    <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
+                        ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
+                    </div>
+                </div>
+            `;
+
+            memoriaApp.forEach((item, index) => {
+                htmlString += `
+                <div style="display: flex; align-items: stretch; margin-bottom: 30px; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; page-break-inside: avoid;">
+                    <img src="${item.imagem}" style="width: 320px; height: 210px; object-fit: cover; flex-shrink: 0; border: 1px solid #ddd; background-color: #ececec;">
+                    <div style="flex: 1; padding: 5px 0 5px 25px; display: flex; flex-direction: column; justify-content: flex-start;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px;">
+                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px;">${item.categoria}</span>
+                            <span style="font-size: 10px; color: #999;">REF. 0${index + 1}</span>
+                        </div>
+                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; flex: 1;">${item.texto}</p>
+                        <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
+                            ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            if (temAssinatura) {
+                htmlString += `
+                <div style="margin-top: 40px; page-break-inside: avoid; text-align: center; padding-top: 30px; border-top: 1px solid #e0e0e0;">
+                    <img src="${canvas.toDataURL('image/png')}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação e Conformidade do Proprietário</div>
+                </div>
+                `;
+            }
+
+            htmlString += `</div>`;
+
+            const opt = {
+                margin: [15, 15, 15, 15],
+                filename: nomeFicheiroFinal,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            // O MOTOR RECEBE A STRING VIRTUAL, IGNORANDO O ECRÃ DO TELEMÓVEL
+            html2pdf().set(opt).from(htmlString).save().then(() => {
+                micStatus.innerText = "Dossier emitido com sucesso.";
+                document.getElementById('gerarPdfBtn').innerText = "GERAR DOSSIER DE LUXO (PDF)";
+            });
         });
 
         document.getElementById('limparBtn').addEventListener('click', function() {
             if(confirm("PERIGO: Esta ação apaga toda a memória e limpa a App. Confirma formatação total?")) {
                 localStorage.removeItem('pov_db_v11'); localStorage.removeItem('pov_meta_v11'); memoriaApp = [];
-                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; logUi.innerHTML = "Sistema formatado."; logPdf.innerHTML = ""; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; previewImagem.style.display = "none"; painelDitado.style.display = "none";
+                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; inputNomePdf.value = ""; logUi.innerHTML = "Sistema formatado."; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; previewImagem.style.display = "none"; painelDitado.style.display = "none";
             }
         });
     </script>

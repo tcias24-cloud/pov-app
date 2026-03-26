@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.7</title>
+    <title>POV Inspeções - Elite V11.8</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -33,12 +33,17 @@
         
         #previewImagem { width: 100%; max-height: 250px; object-fit: cover; border-radius: 6px; margin-bottom: 15px; display: none; border: 1px solid #333; }
         
-        .painel-ditado { display: none; align-items: center; gap: 10px; margin-bottom: 15px; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .painel-ditado { display: none; align-items: flex-start; gap: 10px; margin-bottom: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; }
         .btn-icone-mic { background-color: #ff3b30; color: white; border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; }
         .btn-icone-mic.recording { background-color: #ff0000; animation: pulse 1s infinite; }
-        .visor-texto { width: 100%; min-height: 60px; padding: 10px; border-radius: 6px; border: none; background: transparent; color: #fff; font-size: 14px; resize: none; font-family: inherit; }
-        .visor-texto:focus { outline: none; }
+        .visor-texto { width: 100%; min-height: 80px; padding: 10px; border-radius: 6px; border: none; background: #0a0a0a; color: #fff; font-size: 14px; resize: none; font-family: inherit; }
+        .visor-texto:focus { outline: none; border: 1px solid #d4af37; }
         
+        /* ESTILOS DAS SMART TAGS */
+        .painel-tags { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .smart-tag { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; }
+        .smart-tag:hover, .smart-tag:active { border-color: #d4af37; color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+
         .status { font-size: 11px; color: #666; margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 600; letter-spacing: 1px; }
         
         #canvasAssinatura { width: 100%; height: 150px; background: #fff; border-radius: 6px; cursor: crosshair; touch-action: none; margin-bottom: 10px; }
@@ -46,7 +51,7 @@
         
         .foto-item-ui { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #d4af37; display: flex; align-items: flex-start; gap: 12px; }
         .ui-img-box { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; }
-        .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
+        .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
@@ -104,7 +109,18 @@
         
         <div class="painel-ditado" id="painelDitado">
             <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
-            <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica..."></textarea>
+            <div style="width: 100%;">
+                <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica (m², chão, etc)..."></textarea>
+            </div>
+        </div>
+        
+        <div class="painel-tags" id="painelTags">
+            <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
+            <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos de Alta Qualidade')">+ Acabamentos</button>
+            <button class="smart-tag" onclick="adicionarTag('🔑 Imóvel Pronto a Habitar')">+ Pronto Habitar</button>
+            <button class="smart-tag" onclick="adicionarTag('🌳 Vista Desafogada / Zona Tranquila')">+ Vista / Paz</button>
+            <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas e Funcionais')">+ Áreas</button>
+            <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Estado de Conservação')">+ Conservação</button>
         </div>
         
         <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
@@ -141,6 +157,7 @@
         const previewImagem = document.getElementById('previewImagem');
         const painelDitado = document.getElementById('painelDitado');
         const visorNota = document.getElementById('visorNota');
+        const painelTags = document.getElementById('painelTags');
         const guardarBtn = document.getElementById('guardarBtn');
         const micStatus = document.getElementById('micStatus');
         const logUi = document.getElementById('log-ui');
@@ -157,6 +174,14 @@
         }
         inputAgencia.addEventListener('input', guardarMetadados); inputTitulo.addEventListener('input', guardarMetadados); inputLocal.addEventListener('input', guardarMetadados);
 
+        // FUNÇÃO DE INJEÇÃO DAS SMART TAGS
+        function adicionarTag(textoTag) {
+            let textoAtual = visorNota.value.trim();
+            let novaLinha = textoAtual.length > 0 ? '\n' : '';
+            visorNota.value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
+            guardarBtn.style.display = "block";
+        }
+
         btnLigarLente.addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -165,6 +190,7 @@
                 btnLigarLente.style.display = "none";
                 previewImagem.style.display = "none";
                 painelDitado.style.display = "none";
+                painelTags.style.display = "none";
                 guardarBtn.style.display = "none";
                 micStatus.innerText = "Alinhe as paredes verticais com as linhas da grelha.";
             } catch (err) {
@@ -196,8 +222,9 @@
             btnLigarLente.style.display = "block";
             previewImagem.style.display = "block";
             painelDitado.style.display = "flex";
+            painelTags.style.display = "flex"; // Mostra as Tags
             visorNota.value = "";
-            micStatus.innerText = "Captura Ótica Sucesso. Dite o relatório.";
+            micStatus.innerText = "Dite os factos e adicione Highlights de Venda.";
             guardarBtn.style.display = "none";
         });
 
@@ -206,7 +233,7 @@
         let assinando = false; let temAssinatura = false;
         function resizeCanvas() { const rect = canvas.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; ctxCanvas.lineWidth = 2; ctxCanvas.lineCap = 'round'; ctxCanvas.strokeStyle = '#000'; }
         window.addEventListener('resize', resizeCanvas); resizeCanvas();
-        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches.clientX : e.clientX; const clientY = e.touches ? e.touches.clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
         const startAssinatura = (e) => { assinando = true; const pos = getPos(e); ctxCanvas.beginPath(); ctxCanvas.moveTo(pos.x, pos.y); };
         const drawAssinatura = (e) => { if (assinando) { const pos = getPos(e); ctxCanvas.lineTo(pos.x, pos.y); ctxCanvas.stroke(); temAssinatura = true; } };
         const endAssinatura = () => { assinando = false; };
@@ -231,7 +258,13 @@
             const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.lang = 'pt-PT';
             const inputTarget = document.getElementById(inputId); const btnTarget = document.getElementById(btnId);
             recognition.onstart = () => { btnTarget.classList.add('recording'); };
-            recognition.onresult = (e) => { inputTarget.value = (inputTarget.value + " " + e.results[e.resultIndex][0].transcript).trim(); if(inputId === 'visorNota') guardarBtn.style.display = "block"; guardarMetadados(); };
+            recognition.onresult = (e) => { 
+                let textoExistente = inputTarget.value.trim();
+                let novoTexto = e.results[e.resultIndex].transcript.trim();
+                inputTarget.value = textoExistente.length > 0 ? textoExistente + " " + novoTexto : novoTexto;
+                if(inputId === 'visorNota') guardarBtn.style.display = "block"; 
+                guardarMetadados(); 
+            };
             recognition.onerror = () => { btnTarget.classList.remove('recording'); }; recognition.onend = () => { btnTarget.classList.remove('recording'); };
             try { recognition.start(); } catch(e) {}
         }
@@ -245,7 +278,7 @@
                 memoriaApp.push({ categoria: selectDivisao.value, imagem: tempImagemBase64, texto: visorNota.value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
                 localStorage.setItem('pov_db_v11', JSON.stringify(memoriaApp));
                 renderizarInterface();
-                tempImagemBase64 = ""; visorNota.value = ""; previewImagem.style.display = "none"; painelDitado.style.display = "none"; micStatus.innerText = "Registo de Luxo guardado e indexado.";
+                tempImagemBase64 = ""; visorNota.value = ""; previewImagem.style.display = "none"; painelDitado.style.display = "none"; painelTags.style.display = "none"; micStatus.innerText = "Registo de Luxo guardado e indexado.";
             };
 
             micStatus.innerText = "A buscar satélites GPS...";
@@ -258,7 +291,6 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // O MOTOR INVISÍVEL COM LAYOUT DE TABELA (BLINDADO CONTRA CORTES)
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -286,50 +318,58 @@
                         ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
                     </div>
                 </div>
+                
+                <table style="width: 100%; border-collapse: collapse;">
             `;
 
-            // LAYOUT DE TABELA: Impede matematicamente que a imagem esmague ou corte
             memoriaApp.forEach((item, index) => {
+                // Preserva quebras de linha para as tags ficarem bonitas no PDF
+                let textoFormatado = item.texto.replace(/\n/g, '<br>');
+                
                 htmlString += `
-                <div style="page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; width: 100%; display: table;">
-                    <div style="display: table-cell; width: 320px; vertical-align: top;">
-                        <div style="width: 320px; height: 210px; background-color: #ececec; border: 1px solid #ddd; text-align: center; line-height: 210px; overflow: hidden;">
-                            <img src="${item.imagem}" style="max-width: 320px; max-height: 210px; width: auto; height: auto; vertical-align: middle;">
-                        </div>
-                    </div>
-                    <div style="display: table-cell; padding-left: 25px; vertical-align: top;">
+                <tr style="page-break-inside: avoid; border-bottom: 1px solid #f0f0f0;">
+                    <td style="width: 320px; vertical-align: top; padding-bottom: 30px;">
+                        <img src="${item.imagem}" style="width: 320px; height: 210px; object-fit: cover; border: 1px solid #ddd; background-color: #ececec;">
+                    </td>
+                    <td style="vertical-align: top; padding-left: 25px; padding-bottom: 30px;">
                         <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px;">
                             <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px;">${item.categoria}</span>
                             <span style="font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
                         </div>
-                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0;">${item.texto}</p>
+                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px;">${textoFormatado}</p>
                         <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                             ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
                         </div>
-                    </div>
-                </div>
+                    </td>
+                </tr>
                 `;
             });
 
+            htmlString += `</table>`;
+
             if (temAssinatura) {
+                const assinaturaBase64 = canvas.toDataURL('image/png');
                 htmlString += `
-                <div style="margin-top: 40px; page-break-inside: avoid; text-align: center; padding-top: 30px; border-top: 1px solid #e0e0e0;">
-                    <img src="${canvas.toDataURL('image/png')}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação e Conformidade do Proprietário</div>
-                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 40px; page-break-inside: avoid; text-align: center; border-top: 1px solid #e0e0e0;">
+                    <tr>
+                        <td style="padding-top: 30px;">
+                            <img src="${assinaturaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
+                            <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">VALIDAÇÃO E ASSINATURA DIGITAL DO PROPRIETÁRIO</div>
+                        </td>
+                    </tr>
+                </table>
                 `;
             }
 
             htmlString += `</div>`;
 
             const opt = {
-                margin: [15, 15, 15, 15],
+                margin:,
                 filename: nomeFicheiroFinal,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 850 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                // Comando letal para proteger os cortes nas margens das folhas
-                pagebreak: { mode: ['avoid-all', 'css'] } 
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             html2pdf().set(opt).from(htmlString).save().then(() => {
@@ -341,7 +381,7 @@
         document.getElementById('limparBtn').addEventListener('click', function() {
             if(confirm("PERIGO: Esta ação apaga toda a memória e limpa a App. Confirma formatação total?")) {
                 localStorage.removeItem('pov_db_v11'); localStorage.removeItem('pov_meta_v11'); memoriaApp = [];
-                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; inputNomePdf.value = ""; logUi.innerHTML = "Sistema formatado."; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; previewImagem.style.display = "none"; painelDitado.style.display = "none";
+                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; inputNomePdf.value = ""; logUi.innerHTML = "Sistema formatado."; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; previewImagem.style.display = "none"; painelDitado.style.display = "none"; painelTags.style.display = "none";
             }
         });
     </script>

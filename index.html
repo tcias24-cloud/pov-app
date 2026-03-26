@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.0</title>
+    <title>POV Inspeções - Elite V11.3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -49,20 +49,20 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
 
-        #area-impressao { display: none; background-color: #ffffff; color: #000000; padding: 60px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; }
+        #area-impressao { visibility: hidden; position: absolute; top: 0; left: -9999px; background-color: #ffffff; color: #000000; padding: 50px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; }
         .pdf-cover { text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px; }
         .pdf-brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; }
-        .pdf-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 42px; color: #111; margin: 0 0 15px 0; text-transform: capitalize; line-height: 1.1; }
+        .pdf-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 15px 0; text-transform: capitalize; line-height: 1.2; }
         .pdf-location { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px; }
-        .pdf-item { display: flex; align-items: stretch; margin-bottom: 40px; page-break-inside: avoid; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 30px;}
-        .pdf-img-box { width: 320px; height: 220px; background-color: #ececec; background-size: cover; background-position: center; flex-shrink: 0; border: 1px solid #ddd;}
-        .pdf-item-content { flex: 1; padding: 10px 0 10px 30px; display: flex; flex-direction: column; justify-content: space-between; }
-        .pdf-item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 15px; }
+        .pdf-item { display: flex; align-items: stretch; margin-bottom: 30px; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; page-break-inside: avoid; }
+        .pdf-img-box { width: 320px; height: 210px; object-fit: cover; flex-shrink: 0; border: 1px solid #ddd; background-color: #ececec; }
+        .pdf-item-content { flex: 1; padding: 5px 0 5px 25px; display: flex; flex-direction: column; justify-content: flex-start; }
+        .pdf-item-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; }
         .pdf-category { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
         .pdf-ref { font-size: 10px; color: #999; }
-        .pdf-description { font-family: 'Playfair Display', serif; font-size: 16px; color: #222; line-height: 1.6; margin: 0; flex: 1; }
+        .pdf-description { font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; flex: 1; }
         .pdf-metadata { margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; letter-spacing: 0.5px; border-top: 1px dotted #ccc; padding-top: 10px; }
-        .pdf-signature-block { margin-top: 60px; page-break-inside: avoid; text-align: center; padding-top: 40px; border-top: 1px solid #e0e0e0; }
+        .pdf-signature-block { margin-top: 40px; page-break-inside: avoid; text-align: center; padding-top: 30px; border-top: 1px solid #e0e0e0; }
         .pdf-signature-img { max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px; }
         .pdf-signature-text { font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -89,10 +89,18 @@
         <h2>📷 2. Auditoria e Composição Ótica</h2>
         <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
             <option value="Exterior / Fachada">Exterior / Fachada</option>
+            <option value="Hall de Entrada">Hall de Entrada</option>
             <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
             <option value="Cozinha">Cozinha</option>
+            <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
             <option value="Quarto">Quarto</option>
             <option value="Casa de Banho">Casa de Banho</option>
+            <option value="Escritório">Escritório</option>
+            <option value="Garagem">Garagem</option>
+            <option value="Jardim / Piscina">Jardim / Piscina</option>
+            <option value="Varanda / Terraço">Varanda / Terraço</option>
+            <option value="Lavandaria">Lavandaria</option>
+            <option value="Cave / Arrumos">Cave / Arrumos</option>
         </select>
 
         <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
@@ -228,7 +236,7 @@
             logUi.innerHTML = ""; logPdf.innerHTML = "";
             memoriaApp.forEach((item, index) => {
                 logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${item.texto}</p></div></div>`;
-                logPdf.innerHTML += `<div class="pdf-item"><div class="pdf-img-box" style="background-image: url('${item.imagem}');"></div><div class="pdf-item-content"><div><div class="pdf-item-header"><span class="pdf-category">${item.categoria}</span><span class="pdf-ref">REF. 0${index + 1}</span></div><p class="pdf-description">${item.texto}</p></div><div class="pdf-metadata">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div></div></div>`;
+                logPdf.innerHTML += `<div class="pdf-item"><img class="pdf-img-box" src="${item.imagem}"><div class="pdf-item-content"><div><div class="pdf-item-header"><span class="pdf-category">${item.categoria}</span><span class="pdf-ref">REF. 0${index + 1}</span></div><p class="pdf-description">${item.texto}</p></div><div class="pdf-metadata">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div></div></div>`;
             });
         }
         renderizarInterface();
@@ -278,11 +286,27 @@
             if (temAssinatura) { document.getElementById('imgAssinaturaPdf').src = canvas.toDataURL('image/png'); document.getElementById('blocoAssinaturaPdf').style.display = "block"; } 
             else { document.getElementById('blocoAssinaturaPdf').style.display = "none"; }
             
-            area.style.display = "block"; micStatus.innerText = "A compilar Dossier de Luxo. Aguarde..."; this.innerText = "A RENDERIZAR...";
+            area.style.visibility = "visible";
+            area.style.left = "0";
+            micStatus.innerText = "A estabilizar gráficos. Aguarde...";
+            this.innerText = "A RENDERIZAR...";
             
-            html2pdf().set({ margin: 0, filename: `POV_Inspeção_${inputTitulo.value.trim().replace(/ /g, "_")}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(area).save().then(() => {
-                area.style.display = "none"; micStatus.innerText = "Pronto para operar."; this.innerText = "GERAR DOSSIER DE LUXO (PDF)";
-            });
+            setTimeout(() => {
+                html2pdf().set({ 
+                    margin: [15, 15, 15, 15], 
+                    filename: `POV_Inspecao.pdf`, 
+                    image: { type: 'jpeg', quality: 0.98 }, 
+                    // SOLUÇÃO CRÍTICA: windowWidth a 850 garante que o telemóvel renderiza como um computador
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 850 }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                }).from(area).save().then(() => {
+                    area.style.visibility = "hidden";
+                    area.style.left = "-9999px";
+                    micStatus.innerText = "Pronto para operar."; 
+                    document.getElementById('gerarPdfBtn').innerText = "GERAR DOSSIER DE LUXO (PDF)";
+                });
+            }, 600); 
         });
 
         document.getElementById('limparBtn').addEventListener('click', function() {

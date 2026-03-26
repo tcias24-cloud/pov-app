@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite Final V18</title>
+    <title>POV Inspeções - Enterprise V19.1</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -19,6 +19,11 @@
         .input-meta, .select-divisao { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 14px; font-family: inherit; }
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
+        
+        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .upload-lbl.loaded { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; font-weight: bold; }
+        input[type="file"] { display: none; }
+
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
         .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -52,23 +57,46 @@
 <body>
 
     <div id="app-ui-container">
+        
         <div class="card">
-            <h2>📍 1. Módulo White-Label</h2>
+            <h2>🏢 1. Identificação da Imobiliária</h2>
+            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência (Ex: POV Real Estate)" style="border-color: #d4af37;"></div>
+            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI (Ex: 12345)"></div>
+            <label class="upload-lbl" id="lblLogo">📷 Inserir Logótipo da Agência<input type="file" id="fileLogo" accept="image/*"></label>
+        </div>
+
+        <div class="card">
+            <h2>📍 2. Identificação do Imóvel</h2>
+            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Referência (Ex: ID-001)"></div>
             <div class="input-group">
-                <input type="text" id="inputAgencia" class="input-meta" placeholder="Agência (Ex: ERA Leiria)" style="border-color: #d4af37;">
-            </div>
-            <div class="input-group">
-                <input type="text" id="inputTitulo" class="input-meta" placeholder="Título (Ex: Moradia T4 Luxo)">
-                <button id="micTitulo" class="btn-mic-pequeno">🎙️</button>
-            </div>
-            <div class="input-group">
-                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização (Ex: Cascais, Centro)">
+                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização / Morada do Imóvel">
                 <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
+            </div>
+            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Preço de Venda (€)"></div>
+        </div>
+
+        <div class="card">
+            <h2>👤 3. Identificação do Proprietário</h2>
+            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome Completo"></div>
+            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
+            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
+            <div style="display: flex; gap: 10px;">
+                <label class="upload-lbl" id="lblCCFrente">📷 CC (Frente)<input type="file" id="fileCCF" accept="image/*" capture="environment"></label>
+                <label class="upload-lbl" id="lblCCVerso">📷 CC (Verso)<input type="file" id="fileCCV" accept="image/*" capture="environment"></label>
             </div>
         </div>
 
         <div class="card">
-            <h2>📷 2. Auditoria e Composição Ótica</h2>
+            <h2>📂 4. Lista de Documentos Legais</h2>
+            <label class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial (Finanças)<input type="file" id="fileCaderneta" accept="image/*" capture="environment"></label>
+            <label class="upload-lbl" id="lblRegisto">📷 Registo Predial (Conservatória)<input type="file" id="fileRegisto" accept="image/*" capture="environment"></label>
+            <label class="upload-lbl" id="lblLicenca">📷 Licença de Utilização (Câmara)<input type="file" id="fileLicenca" accept="image/*" capture="environment"></label>
+            <label class="upload-lbl" id="lblCertificado">📷 Certificado Energético (ADENE)<input type="file" id="fileCertificado" accept="image/*" capture="environment"></label>
+            <label class="upload-lbl" id="lblOutros">📷 Outros Documentos<input type="file" id="fileOutros" accept="image/*" capture="environment"></label>
+        </div>
+
+        <div class="card">
+            <h2>📷 5. Vistoria e Características Técnicas</h2>
             <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
                 <option value="Exterior / Fachada">Exterior / Fachada</option>
                 <option value="Hall de Entrada">Hall de Entrada</option>
@@ -80,60 +108,53 @@
                 <option value="Escritório">Escritório</option>
                 <option value="Garagem">Garagem</option>
                 <option value="Jardim / Piscina">Jardim / Piscina</option>
-                <option value="Varanda / Terraço">Varanda / Terraço</option>
-                <option value="Lavandaria">Lavandaria</option>
                 <option value="Cave / Arrumos">Cave / Arrumos</option>
             </select>
 
-            <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE DE PRECISÃO</button>
+            <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE TÉCNICA</button>
             
             <div id="moduloCamera">
                 <video id="videoElement" autoplay playsinline></video>
-                <div class="grid-overlay">
-                    <div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div>
-                    <div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div>
-                </div>
+                <div class="grid-overlay"><div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div><div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div></div>
                 <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
                 <canvas id="canvasOculto" style="display:none;"></canvas>
             </div>
             
             <div class="status" id="micStatus">Pronto para operar.</div>
-            
             <img id="previewImagem" src="" alt="Preview">
             
             <div class="painel-ditado" id="painelDitado">
                 <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
                 <div style="width: 100%;">
-                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a nota técnica (m², chão, etc)..."></textarea>
+                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a descrição do espaço..."></textarea>
                 </div>
             </div>
             
             <div class="painel-tags" id="painelTags">
                 <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
-                <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos de Alta Qualidade')">+ Acabamentos</button>
-                <button class="smart-tag" onclick="adicionarTag('🔑 Imóvel Pronto a Habitar')">+ Pronto Habitar</button>
-                <button class="smart-tag" onclick="adicionarTag('🌳 Vista Desafogada / Zona Tranquila')">+ Vista / Paz</button>
-                <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas e Funcionais')">+ Áreas</button>
-                <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Estado de Conservação')">+ Conservação</button>
+                <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos Premium')">+ Premium</button>
+                <button class="smart-tag" onclick="adicionarTag('🔑 Pronto a Habitar')">+ Habitar</button>
+                <button class="smart-tag" onclick="adicionarTag('🌳 Zona Tranquila')">+ Paz</button>
+                <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas')">+ Áreas</button>
+                <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Conservação')">+ Conservação</button>
             </div>
             
-            <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR COM GEOLOCALIZAÇÃO</button>
+            <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR ESPAÇO E GPS</button>
         </div>
 
         <div class="card">
-            <h2>✍️ 3. Assinatura Digital</h2>
+            <h2>✍️ 6. Assinatura Digital do Proprietário</h2>
             <canvas id="canvasAssinatura"></canvas>
             <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
         </div>
 
         <div class="card">
-            <h2>🗂️ 4. Dossier de Elite</h2>
+            <h2>🗂️ EMISSÃO DO DOSSIER</h2>
             <div class="input-group" style="margin-bottom: 20px;">
-                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do PDF (Ex: Vistoria_Moradia)">
+                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do Ficheiro (Ex: Angariacao_ID001)">
             </div>
-            
-            <div id="log-ui">Ainda sem registos na memória.</div>
-            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE LUXO (PDF)</button>
+            <div id="log-ui">Ainda sem registos técnicos na memória.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR FICHA DE ANGARIAÇÃO (PDF)</button>
             <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
         </div>
     </div>
@@ -141,214 +162,259 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        const inputAgencia = document.getElementById('inputAgencia');
-        const inputTitulo = document.getElementById('inputTitulo');
-        const inputLocal = document.getElementById('inputLocal');
-        const inputNomePdf = document.getElementById('inputNomePdf');
-        const selectDivisao = document.getElementById('selectDivisao');
-        const btnLigarLente = document.getElementById('btnLigarLente');
-        const moduloCamera = document.getElementById('moduloCamera');
-        const videoElement = document.getElementById('videoElement');
-        const btnDisparoLente = document.getElementById('btnDisparoLente');
-        const canvasOculto = document.getElementById('canvasOculto');
-        const previewImagem = document.getElementById('previewImagem');
-        const painelDitado = document.getElementById('painelDitado');
-        const visorNota = document.getElementById('visorNota');
-        const painelTags = document.getElementById('painelTags');
-        const guardarBtn = document.getElementById('guardarBtn');
-        const micStatus = document.getElementById('micStatus');
-        const logUi = document.getElementById('log-ui');
-        
-        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v11')) || [];
-        let metadados = JSON.parse(localStorage.getItem('pov_meta_v11')) || { agencia: "", titulo: "", local: "" };
+        let metadados = JSON.parse(localStorage.getItem('pov_meta_v19')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
+        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v19')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
+        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v19')) || [];
         let tempImagemBase64 = "";
         let streamAtivo = null;
 
-        inputAgencia.value = metadados.agencia; inputTitulo.value = metadados.titulo; inputLocal.value = metadados.local;
-        function guardarMetadados() {
-            metadados = { agencia: inputAgencia.value, titulo: inputTitulo.value, local: inputLocal.value };
-            localStorage.setItem('pov_meta_v11', JSON.stringify(metadados));
-        }
-        inputAgencia.addEventListener('input', guardarMetadados); inputTitulo.addEventListener('input', guardarMetadados); inputLocal.addEventListener('input', guardarMetadados);
-
-        function adicionarTag(textoTag) {
-            let textoAtual = visorNota.value.trim();
-            let novaLinha = textoAtual.length > 0 ? '\n' : '';
-            visorNota.value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
-            guardarBtn.style.display = "block";
-        }
-
-        btnLigarLente.addEventListener('click', async () => {
-            try {
-                streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                videoElement.srcObject = streamAtivo;
-                moduloCamera.style.display = "block";
-                btnLigarLente.style.display = "none";
-                previewImagem.style.display = "none";
-                painelDitado.style.display = "none";
-                painelTags.style.display = "none";
-                guardarBtn.style.display = "none";
-                micStatus.innerText = "Alinhe as paredes verticais com as linhas da grelha.";
-            } catch (err) {
-                alert("Permita o acesso à câmera nas definições do seu navegador.");
-                micStatus.innerText = "Acesso à lente negado.";
+        const inputsMeta = ['Agencia', 'AMI', 'Referencia', 'Local', 'Preco', 'NomeProp', 'ContactoProp', 'MoradaProp'];
+        inputsMeta.forEach(id => {
+            const el = document.getElementById('input' + id);
+            let prop = id.charAt(0).toLowerCase() + id.slice(1);
+            if(el) {
+                el.value = metadados[prop] || "";
+                el.addEventListener('input', () => { metadados[prop] = el.value; localStorage.setItem('pov_meta_v19', JSON.stringify(metadados)); });
             }
         });
 
-        btnDisparoLente.addEventListener('click', () => {
-            const MAX_WIDTH = 1024;
-            let imgWidth = videoElement.videoWidth;
-            let imgHeight = videoElement.videoHeight;
-            if (imgWidth > MAX_WIDTH) { imgHeight = imgHeight * (MAX_WIDTH / imgWidth); imgWidth = MAX_WIDTH; }
-            canvasOculto.width = imgWidth;
-            canvasOculto.height = imgHeight;
-            const ctx = canvasOculto.getContext('2d');
-            ctx.drawImage(videoElement, 0, 0, imgWidth, imgHeight);
-            tempImagemBase64 = canvasOculto.toDataURL('image/jpeg', 0.6);
-            previewImagem.src = tempImagemBase64;
-            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
-            moduloCamera.style.display = "none";
-            btnLigarLente.style.display = "block";
-            previewImagem.style.display = "block";
-            painelDitado.style.display = "flex";
-            painelTags.style.display = "flex";
-            visorNota.value = "";
-            micStatus.innerText = "Captura Ótica Sucesso. Dite o relatório.";
-            guardarBtn.style.display = "none";
+        function setupDocUpload(inputId, lblId, docKey) {
+            const input = document.getElementById(inputId);
+            const lbl = document.getElementById(lblId);
+            if(docsApp[docKey]) { lbl.classList.add('loaded'); lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', ''); }
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão cirúrgica: 800px para poupar RAM nos documentos
+                        let w = img.width, h = img.height;
+                        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); // Compressão Jpeg agressiva (0.7) para evitar Memory Leaks
+                        localStorage.setItem('pov_docs_v19', JSON.stringify(docsApp));
+                        lbl.classList.add('loaded');
+                        if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', '');
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+        setupDocUpload('fileLogo', 'lblLogo', 'logo');
+        setupDocUpload('fileCCF', 'lblCCFrente', 'ccF');
+        setupDocUpload('fileCCV', 'lblCCVerso', 'ccV');
+        setupDocUpload('fileCaderneta', 'lblCaderneta', 'caderneta');
+        setupDocUpload('fileRegisto', 'lblRegisto', 'registo');
+        setupDocUpload('fileLicenca', 'lblLicenca', 'licenca');
+        setupDocUpload('fileCertificado', 'lblCertificado', 'certificado');
+        setupDocUpload('fileOutros', 'lblOutros', 'outros');
+
+        function adicionarTag(textoTag) {
+            let textoAtual = document.getElementById('visorNota').value.trim();
+            let novaLinha = textoAtual.length > 0 ? '\n' : '';
+            document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
+            document.getElementById('guardarBtn').style.display = "block";
+        }
+
+        document.getElementById('btnLigarLente').addEventListener('click', async () => {
+            try {
+                streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('videoElement').srcObject = streamAtivo;
+                document.getElementById('moduloCamera').style.display = "block";
+                document.getElementById('btnLigarLente').style.display = "none";
+                document.getElementById('previewImagem').style.display = "none";
+                document.getElementById('painelDitado').style.display = "none";
+                document.getElementById('painelTags').style.display = "none";
+                document.getElementById('guardarBtn').style.display = "none";
+                document.getElementById('micStatus').innerText = "Lente Técnica Ativada.";
+            } catch (err) { alert("Acesso à câmera negado."); }
         });
 
-        const canvas = document.getElementById('canvasAssinatura');
-        const ctxCanvas = canvas.getContext('2d');
+        document.getElementById('btnDisparoLente').addEventListener('click', () => {
+            const video = document.getElementById('videoElement');
+            let w = video.videoWidth, h = video.videoHeight;
+            if (w > 1024) { h = h * (1024 / w); w = 1024; }
+            const cvs = document.getElementById('canvasOculto');
+            cvs.width = w; cvs.height = h;
+            cvs.getContext('2d').drawImage(video, 0, 0, w, h);
+            tempImagemBase64 = cvs.toDataURL('image/jpeg', 0.6);
+            document.getElementById('previewImagem').src = tempImagemBase64;
+            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
+            document.getElementById('moduloCamera').style.display = "none";
+            document.getElementById('btnLigarLente').style.display = "block";
+            document.getElementById('previewImagem').style.display = "block";
+            document.getElementById('painelDitado').style.display = "flex";
+            document.getElementById('painelTags').style.display = "flex";
+            document.getElementById('visorNota').value = "";
+            document.getElementById('micStatus').innerText = "Captura Sucesso. Dite a vistoria.";
+        });
+
+        const canvasAssinatura = document.getElementById('canvasAssinatura');
+        const ctxAssinatura = canvasAssinatura.getContext('2d');
         let assinando = false; let temAssinatura = false; let assinaturaSalvaBase64 = "";
 
         function inicializarCanvas() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width > 0 ? rect.width - 40 : window.innerWidth - 70; 
-            canvas.height = 150; 
-            ctxCanvas.lineWidth = 2; 
-            ctxCanvas.lineCap = 'round'; 
-            ctxCanvas.strokeStyle = '#000'; 
+            const rect = canvasAssinatura.parentElement.getBoundingClientRect();
+            canvasAssinatura.width = rect.width > 0 ? rect.width - 40 : window.innerWidth - 70; 
+            canvasAssinatura.height = 150; 
+            ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; 
         }
         inicializarCanvas();
 
-        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
-        const startAssinatura = (e) => { assinando = true; const pos = getPos(e); ctxCanvas.beginPath(); ctxCanvas.moveTo(pos.x, pos.y); };
-        const drawAssinatura = (e) => { if (assinando) { const pos = getPos(e); ctxCanvas.lineTo(pos.x, pos.y); ctxCanvas.stroke(); temAssinatura = true; } };
-        const endAssinatura = () => { assinando = false; if(temAssinatura) { assinaturaSalvaBase64 = canvas.toDataURL('image/png'); } };
-
-        canvas.addEventListener('mousedown', startAssinatura); canvas.addEventListener('mousemove', drawAssinatura); canvas.addEventListener('mouseup', endAssinatura);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startAssinatura(e); }, {passive: false}); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawAssinatura(e); }, {passive: false}); canvas.addEventListener('touchend', endAssinatura);
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
+        canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
+        canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); });
+        canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
+        canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
+        canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); });
         
-        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; assinaturaSalvaBase64 = ""; });
+        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function ativarDitado(inputId, btnId) {
+            if (!SpeechRecognition) return;
+            const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
+            const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
+            rec.onstart = () => { btn.classList.add('recording'); };
+            rec.onresult = (e) => { 
+                let tEx = target.value.trim();
+                let novo = e.results[e.resultIndex][0].transcript.trim(); 
+                target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                if(inputId === 'visorNota') document.getElementById('guardarBtn').style.display = "block"; 
+            };
+            rec.onend = () => { btn.classList.remove('recording'); };
+            try { rec.start(); } catch(e) {}
+        }
+        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
+        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
         function renderizarInterface() {
+            const logUi = document.getElementById('log-ui');
             if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; return; }
             logUi.innerHTML = "";
-            memoriaApp.forEach((item, index) => {
+            memoriaApp.forEach((item) => {
                 logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${item.texto}</p></div></div>`;
             });
         }
         renderizarInterface();
 
-        visorNota.addEventListener('input', function() { guardarBtn.style.display = (tempImagemBase64 !== "" && visorNota.value.trim().length > 0) ? "block" : "none"; });
+        document.getElementById('visorNota').addEventListener('input', function() { document.getElementById('guardarBtn').style.display = (tempImagemBase64 !== "" && this.value.trim().length > 0) ? "block" : "none"; });
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        function ativarDitado(inputId, btnId) {
-            if (!SpeechRecognition) return;
-            const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.lang = 'pt-PT';
-            const inputTarget = document.getElementById(inputId); const btnTarget = document.getElementById(btnId);
-            recognition.onstart = () => { btnTarget.classList.add('recording'); };
-            recognition.onresult = (e) => { 
-                let textoExistente = inputTarget.value.trim();
-                let novoTexto = e.results[e.resultIndex][0].transcript.trim(); 
-                inputTarget.value = textoExistente.length > 0 ? textoExistente + " " + novoTexto : novoTexto;
-                if(inputId === 'visorNota') guardarBtn.style.display = "block"; 
-                guardarMetadados(); 
-            };
-            recognition.onerror = () => { btnTarget.classList.remove('recording'); }; recognition.onend = () => { btnTarget.classList.remove('recording'); };
-            try { recognition.start(); } catch(e) {}
-        }
-        document.getElementById('micTitulo').addEventListener('click', () => ativarDitado('inputTitulo', 'micTitulo'));
-        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
-        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
-
-        guardarBtn.addEventListener('click', function() {
-            guardarBtn.style.display = "none"; 
+        document.getElementById('guardarBtn').addEventListener('click', function() {
+            this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
-                memoriaApp.push({ categoria: selectDivisao.value, imagem: tempImagemBase64, texto: visorNota.value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                localStorage.setItem('pov_db_v11', JSON.stringify(memoriaApp));
+                memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
+                localStorage.setItem('pov_db_v19', JSON.stringify(memoriaApp));
                 renderizarInterface();
-                tempImagemBase64 = ""; visorNota.value = ""; previewImagem.style.display = "none"; painelDitado.style.display = "none"; painelTags.style.display = "none"; micStatus.innerText = "Registo de Luxo guardado e indexado.";
+                tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
             };
 
-            micStatus.innerText = "A buscar satélites GPS...";
+            document.getElementById('micStatus').innerText = "A captar GPS...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); },
-                    (err) => { concluirGuardar("Coordenadas encriptadas / Sinal GPS bloqueado"); },
+                    (err) => { concluirGuardar("Sinal GPS bloqueado"); },
                     { enableHighAccuracy: true, timeout: 5000 }
                 );
-            } else { concluirGuardar("GPS não suportado pelo hardware."); }
+            } else { concluirGuardar("GPS não suportado."); }
         });
 
-        // ==========================================
-        // V18: A MARGEM FANTASMA (BUFFER ZONE)
-        // ==========================================
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
-            if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
-            let nomeFicheiroFinal = inputNomePdf.value.trim();
-            if (nomeFicheiroFinal === "") {
-                const tituloLimpo = inputTitulo.value.trim().replace(/\s+/g, '_') || 'Imovel';
-                nomeFicheiroFinal = `POV_${tituloLimpo}_${new Date().getTime()}.pdf`;
-            } else {
-                if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
-            }
+            let nomeFicheiroFinal = document.getElementById('inputNomePdf').value.trim();
+            if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
+            if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
 
             document.getElementById('app-ui-container').style.display = 'none';
             document.body.style.backgroundColor = '#ffffff';
-            
             const pdfZone = document.getElementById('pdf-render-zone');
             pdfZone.style.display = 'block';
 
             let htmlString = `
-                <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px;">
-                    <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
-                        ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
+                <div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
+                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: middle;">
+                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">FICHA DE ANGARIAÇÃO</h1>`}
+                            </td>
+                            <td style="width: 50%; text-align: right; vertical-align: middle;">
+                                <div style="font-weight: 700; font-size: 16px; color: #111;">${metadados.agencia || "Agência Não Definida"}</div>
+                                <div style="font-size: 10px; color: #666; margin-top: 4px;">LICENÇA AMI: ${metadados.ami || "N/A"}</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table style="width: 100%; margin-bottom: 25px; table-layout: fixed; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 10px;">
+                                <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
+                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Imóvel</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Referência:</b> ${metadados.ref || "N/A"}</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Localização:</b> ${metadados.local || "N/A"}</div>
+                                    <div style="font-size: 12px;"><b style="color:#222;">Preço de Venda:</b> ${metadados.preco || "Sob Consulta"}</div>
+                                </div>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; padding-left: 10px;">
+                                 <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
+                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Proprietário</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Nome:</b> ${metadados.nomeProp || "N/A"}</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Contacto:</b> ${metadados.contactoProp || "N/A"}</div>
+                                    <div style="font-size: 12px;"><b style="color:#222;">Morada:</b> ${metadados.moradaProp || "N/A"}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
+                        <div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #111; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Status de Documentação Legal</div>
+                        <table style="width: 100%; font-size: 11px; color: #444;">
+                            <tr>
+                                <td style="width: 50%; padding: 4px 0;">Cartão de Cidadão: <b style="color:${docsApp.ccF ? '#27ae60' : '#d35400'};">${docsApp.ccF ? 'Entregue' : 'Pendente'}</b></td>
+                                <td style="width: 50%; padding: 4px 0;">Caderneta Predial: <b style="color:${docsApp.caderneta ? '#27ae60' : '#d35400'};">${docsApp.caderneta ? 'Entregue' : 'Pendente'}</b></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 4px 0;">Registo Predial: <b style="color:${docsApp.registo ? '#27ae60' : '#d35400'};">${docsApp.registo ? 'Entregue' : 'Pendente'}</b></td>
+                                <td style="width: 50%; padding: 4px 0;">Licença de Utilização: <b style="color:${docsApp.licenca ? '#27ae60' : '#d35400'};">${docsApp.licenca ? 'Entregue' : 'Pendente'}</b></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 50%; padding: 4px 0;">Certificado Energético: <b style="color:${docsApp.certificado ? '#27ae60' : '#d35400'};">${docsApp.certificado ? 'Entregue' : 'Pendente'}</b></td>
+                                <td style="width: 50%; padding: 4px 0;">Outros Documentos: <b style="color:${docsApp.outros ? '#27ae60' : '#888'};">${docsApp.outros ? 'Entregue' : 'N/A'}</b></td>
+                            </tr>
+                        </table>
                     </div>
-                    <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 10px 0;">
-                        ${inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo"}
-                    </h1>
-                    <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
-                        ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
-                    </div>
-                </div>
+                    
+                    <div style="page-break-before: auto;"></div>
             `;
+
+            if(memoriaApp.length > 0) {
+                htmlString += `<div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Relatório de Vistoria Técnica</div>`;
+            }
 
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
-                
                 htmlString += `
-                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;">
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
                     <tr>
                         <td style="width: 45%; vertical-align: top; padding: 0;">
-                            <div style="width: 100%; height: 200px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div>
+                            <div style="width: 100%; height: 180px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div>
                         </td>
-                        
                         <td style="width: 5%; padding: 0;"></td>
-                        
-                        <!-- ADICIONADO PADDING-RIGHT DE SEGURANÇA NA CÉLULA MÃE -->
                         <td style="width: 50%; vertical-align: top; padding: 0; padding-top: 5px; padding-right: 20px; box-sizing: border-box;">
-                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; display: block; padding-right: 10px;">
+                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 8px; display: block; padding-right: 10px;">
                                 <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span>
                                 <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
                                 <div style="clear: both;"></div>
                             </div>
-                            
-                            <!-- A MAGIA ACONTECE AQUI: WIDTH DE 90% (CRIA O MURO INVISÍVEL) + PADDING-RIGHT -->
-                            <div style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; width: 90%; padding-right: 25px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
-                            
-                            <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
+                            <div style="font-family: 'Playfair Display', serif; font-size: 13px; color: #222; line-height: 1.5; margin: 0; min-height: 80px; width: 90%; padding-right: 20px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
+                            <div style="margin-top: 10px; font-size: 8px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 5px;">
                                 ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
                             </div>
                         </td>
@@ -361,19 +427,43 @@
                 htmlString += `
                 <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;">
                     <img src="${assinaturaSalvaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">VALIDAÇÃO E ASSINATURA DIGITAL DO PROPRIETÁRIO</div>
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação e Acordo Legal - Proprietário</div>
                 </div>
                 `;
             }
 
+            let fotosAnexosHTML = "";
+            const dictAnexos = { 'ccF': 'Cartão de Cidadão (Frente)', 'ccV': 'Cartão de Cidadão (Verso)', 'caderneta': 'Caderneta Predial', 'registo': 'Registo Predial', 'licenca': 'Licença de Utilização', 'certificado': 'Certificado Energético', 'outros': 'Outros Documentos' };
+            
+            for (const [key, label] of Object.entries(dictAnexos)) {
+                if(docsApp[key]) {
+                    fotosAnexosHTML += `
+                        <div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
+                            <div style="font-weight: 700; font-size: 12px; color: #111; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 5px; display: inline-block;">📋 Anexo: ${label}</div>
+                            <img src="${docsApp[key]}" style="max-width: 100%; max-height: 600px; display: block; margin: 0 auto;">
+                        </div>
+                    `;
+                }
+            }
+
+            if(fotosAnexosHTML !== "") {
+                htmlString += `
+                    <div style="page-break-before: always; padding-top: 20px;"></div>
+                    <div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Anexos Documentais Oficiais</div>
+                    ${fotosAnexosHTML}
+                `;
+            }
+
+            htmlString += `</div>`; 
             pdfZone.innerHTML = htmlString;
             window.scrollTo(0, 0);
 
             setTimeout(() => {
+                // CORREÇÃO CRÍTICA DE SINTAXE APLICADA (margin: [15, 15, 15, 15],)
                 const opt = {
                     margin: [15, 15, 15, 15],
                     filename: nomeFicheiroFinal,
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg', quality: 0.90 }, 
                     html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
@@ -383,15 +473,14 @@
                     pdfZone.innerHTML = '';
                     document.body.style.backgroundColor = '#050505';
                     document.getElementById('app-ui-container').style.display = 'block';
-                    micStatus.innerText = "Dossier emitido com sucesso.";
                 });
             }, 1500); 
         });
 
         document.getElementById('limparBtn').addEventListener('click', function() {
-            if(confirm("PERIGO: Esta ação apaga toda a memória e limpa a App. Confirma formatação total?")) {
-                localStorage.removeItem('pov_db_v11'); localStorage.removeItem('pov_meta_v11'); memoriaApp = [];
-                inputAgencia.value = ""; inputTitulo.value = ""; inputLocal.value = ""; inputNomePdf.value = ""; logUi.innerHTML = "Sistema formatado."; ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; assinaturaSalvaBase64 = ""; previewImagem.style.display = "none"; painelDitado.style.display = "none"; painelTags.style.display = "none";
+            if(confirm("PERIGO: Esta ação formata a App. Tem a certeza?")) {
+                localStorage.removeItem('pov_db_v19'); localStorage.removeItem('pov_meta_v19'); localStorage.removeItem('pov_docs_v19');
+                window.location.reload();
             }
         });
     </script>

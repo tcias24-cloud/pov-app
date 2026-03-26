@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.8</title>
+    <title>POV Inspeções - Elite Gold Master</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -39,7 +39,6 @@
         .visor-texto { width: 100%; min-height: 80px; padding: 10px; border-radius: 6px; border: none; background: #0a0a0a; color: #fff; font-size: 14px; resize: none; font-family: inherit; }
         .visor-texto:focus { outline: none; border: 1px solid #d4af37; }
         
-        /* ESTILOS DAS SMART TAGS */
         .painel-tags { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
         .smart-tag { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; }
         .smart-tag:hover, .smart-tag:active { border-color: #d4af37; color: #d4af37; background: rgba(212, 175, 55, 0.1); }
@@ -174,7 +173,6 @@
         }
         inputAgencia.addEventListener('input', guardarMetadados); inputTitulo.addEventListener('input', guardarMetadados); inputLocal.addEventListener('input', guardarMetadados);
 
-        // FUNÇÃO DE INJEÇÃO DAS SMART TAGS
         function adicionarTag(textoTag) {
             let textoAtual = visorNota.value.trim();
             let novaLinha = textoAtual.length > 0 ? '\n' : '';
@@ -260,7 +258,6 @@
             recognition.onstart = () => { btnTarget.classList.add('recording'); };
             recognition.onresult = (e) => { 
                 let textoExistente = inputTarget.value.trim();
-                // Correção do erro da matriz de resultados de voz
                 let novoTexto = e.results[e.resultIndex][0].transcript.trim(); 
                 inputTarget.value = textoExistente.length > 0 ? textoExistente + " " + novoTexto : novoTexto;
                 if(inputId === 'visorNota') guardarBtn.style.display = "block"; 
@@ -292,7 +289,6 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // MOTOR INVISÍVEL COM CORREÇÃO DE SINTAXE DE MARGENS
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -364,7 +360,6 @@
 
             htmlString += `</div>`;
 
-            // CORREÇÃO CRÍTICA DO ERRO DE SINTAXE 'margin:' 
             const opt = {
                 margin: [15, 15, 15, 15],
                 filename: nomeFicheiroFinal,

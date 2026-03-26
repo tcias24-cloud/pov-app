@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.3</title>
+    <title>POV Inspeções - Elite V11.4</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -49,7 +49,8 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
 
-        #area-impressao { visibility: hidden; position: absolute; top: 0; left: -9999px; background-color: #ffffff; color: #000000; padding: 50px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; }
+        /* ÁREA DE IMPRESSÃO ESTABILIZADA E Z-INDEX NEGATIVO */
+        #area-impressao { display: none; background-color: #ffffff; color: #000000; padding: 50px; font-family: 'Montserrat', sans-serif; width: 850px; box-sizing: border-box; position: absolute; top: 0; left: 0; z-index: -9999; }
         .pdf-cover { text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px; }
         .pdf-brand-logo { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px; }
         .pdf-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 15px 0; text-transform: capitalize; line-height: 1.2; }
@@ -199,13 +200,25 @@
             }
         });
 
+        // ALGORITMO DE COMPRESSÃO DE IMAGEM INJETADO AQUI
         btnDisparoLente.addEventListener('click', () => {
-            canvasOculto.width = videoElement.videoWidth;
-            canvasOculto.height = videoElement.videoHeight;
-            const ctx = canvasOculto.getContext('2d');
-            ctx.drawImage(videoElement, 0, 0, canvasOculto.width, canvasOculto.height);
+            const MAX_WIDTH = 1024;
+            let imgWidth = videoElement.videoWidth;
+            let imgHeight = videoElement.videoHeight;
             
-            tempImagemBase64 = canvasOculto.toDataURL('image/jpeg', 0.8);
+            // Redimensiona mantendo a proporção para poupar RAM
+            if (imgWidth > MAX_WIDTH) {
+                imgHeight = imgHeight * (MAX_WIDTH / imgWidth);
+                imgWidth = MAX_WIDTH;
+            }
+            
+            canvasOculto.width = imgWidth;
+            canvasOculto.height = imgHeight;
+            const ctx = canvasOculto.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, imgWidth, imgHeight);
+            
+            // Compressão JPEG a 60% para PDFs leves e ultra-rápidos
+            tempImagemBase64 = canvasOculto.toDataURL('image/jpeg', 0.6);
             previewImagem.src = tempImagemBase64;
             
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
@@ -286,8 +299,9 @@
             if (temAssinatura) { document.getElementById('imgAssinaturaPdf').src = canvas.toDataURL('image/png'); document.getElementById('blocoAssinaturaPdf').style.display = "block"; } 
             else { document.getElementById('blocoAssinaturaPdf').style.display = "none"; }
             
-            area.style.visibility = "visible";
-            area.style.left = "0";
+            // Fix para páginas em branco: Scroll para o topo e renderização explícita
+            window.scrollTo(0, 0);
+            area.style.display = "block";
             micStatus.innerText = "A estabilizar gráficos. Aguarde...";
             this.innerText = "A RENDERIZAR...";
             
@@ -296,13 +310,11 @@
                     margin: [15, 15, 15, 15], 
                     filename: `POV_Inspecao.pdf`, 
                     image: { type: 'jpeg', quality: 0.98 }, 
-                    // SOLUÇÃO CRÍTICA: windowWidth a 850 garante que o telemóvel renderiza como um computador
                     html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, windowWidth: 850 }, 
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 }).from(area).save().then(() => {
-                    area.style.visibility = "hidden";
-                    area.style.left = "-9999px";
+                    area.style.display = "none";
                     micStatus.innerText = "Pronto para operar."; 
                     document.getElementById('gerarPdfBtn').innerText = "GERAR DOSSIER DE LUXO (PDF)";
                 });

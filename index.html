@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V13.1</title>
+    <title>POV Inspeções - Elite Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -45,7 +45,7 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 800px; padding: 40px; box-sizing: border-box; margin: 0 auto; }
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 850px; padding: 40px; box-sizing: border-box; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -216,16 +216,12 @@
             guardarBtn.style.display = "none";
         });
 
-        /* ======== MOTOR DE ASSINATURA BLINDADO ======== */
         const canvas = document.getElementById('canvasAssinatura');
         const ctxCanvas = canvas.getContext('2d');
-        let assinando = false; 
-        let temAssinatura = false;
-        let assinaturaSalvaBase64 = ""; // Cofre de memória da assinatura
+        let assinando = false; let temAssinatura = false; let assinaturaSalvaBase64 = "";
 
         function inicializarCanvas() {
             const rect = canvas.parentElement.getBoundingClientRect();
-            // A largura é fixa no momento do carregamento, não reage ao teclado!
             canvas.width = rect.width > 0 ? rect.width - 40 : window.innerWidth - 70; 
             canvas.height = 150; 
             ctxCanvas.lineWidth = 2; 
@@ -233,29 +229,16 @@
             ctxCanvas.strokeStyle = '#000'; 
         }
         inicializarCanvas();
-        // REMOVIDO: window.addEventListener('resize', resizeCanvas); -> Era isto que apagava o canvas!
 
         function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
         const startAssinatura = (e) => { assinando = true; const pos = getPos(e); ctxCanvas.beginPath(); ctxCanvas.moveTo(pos.x, pos.y); };
         const drawAssinatura = (e) => { if (assinando) { const pos = getPos(e); ctxCanvas.lineTo(pos.x, pos.y); ctxCanvas.stroke(); temAssinatura = true; } };
-        
-        const endAssinatura = () => { 
-            assinando = false; 
-            if(temAssinatura) {
-                // Tira fotografia secreta no momento exato em que a caneta levanta
-                assinaturaSalvaBase64 = canvas.toDataURL('image/png');
-            }
-        };
+        const endAssinatura = () => { assinando = false; if(temAssinatura) { assinaturaSalvaBase64 = canvas.toDataURL('image/png'); } };
 
         canvas.addEventListener('mousedown', startAssinatura); canvas.addEventListener('mousemove', drawAssinatura); canvas.addEventListener('mouseup', endAssinatura);
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startAssinatura(e); }, {passive: false}); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawAssinatura(e); }, {passive: false}); canvas.addEventListener('touchend', endAssinatura);
         
-        document.getElementById('btnLimparCanvas').addEventListener('click', () => { 
-            ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); 
-            temAssinatura = false; 
-            assinaturaSalvaBase64 = ""; // Limpa o cofre
-        });
-        /* ============================================= */
+        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxCanvas.clearRect(0, 0, canvas.width, canvas.height); temAssinatura = false; assinaturaSalvaBase64 = ""; });
 
         function renderizarInterface() {
             if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; return; }
@@ -324,32 +307,37 @@
             const pdfZone = document.getElementById('pdf-render-zone');
             pdfZone.style.display = 'block';
 
+            // LIMITES MATEMÁTICOS APLICADOS (850px total - 80px margem = 770px úteis)
             let htmlString = `
-                <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px;">
-                    <div style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
-                        ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
+                <div style="padding: 40px; font-family: 'Montserrat', sans-serif; color: #000; background: #fff; width: 850px; max-width: 850px; margin: 0 auto; box-sizing: border-box;">
+                    <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; margin-bottom: 30px;">
+                        <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 15px;">
+                            ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
+                        </div>
+                        <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 10px 0;">
+                            ${inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo"}
+                        </h1>
+                        <div style="font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
+                            ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
+                        </div>
                     </div>
-                    <h1 style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 38px; color: #111; margin: 0 0 10px 0;">
-                        ${inputTitulo.value.trim() !== "" ? inputTitulo.value : "Relatório Técnico Exclusivo"}
-                    </h1>
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 2px;">
-                        ${inputLocal.value.trim() !== "" ? inputLocal.value : "Localização sob sigilo"}
-                    </div>
-                </div>
             `;
 
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 htmlString += `
-                <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; overflow: hidden;">
-                    <div style="float: left; width: 320px; height: 210px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div>
+                <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; overflow: hidden; box-sizing: border-box;">
                     
-                    <div style="margin-left: 350px;">
+                    <!-- FOTO COM LARGURA RIGOROSA (320px) -->
+                    <div style="float: left; width: 320px; height: 210px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center; box-sizing: border-box;"></div>
+                    
+                    <!-- TEXTO COM LARGURA RIGOROSA (420px) E QUEBRA DE PALAVRA FORÇADA -->
+                    <div style="float: left; width: 420px; margin-left: 30px; box-sizing: border-box;">
                         <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; overflow: hidden;">
                             <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span>
                             <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
                         </div>
-                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px;">${textoFormatado}</p>
+                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">${textoFormatado}</p>
                         <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                             ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
                         </div>
@@ -358,7 +346,6 @@
                 `;
             });
 
-            // INJEÇÃO DA ASSINATURA BLINDADA (LIDA DO COFRE DE MEMÓRIA)
             if (temAssinatura && assinaturaSalvaBase64 !== "") {
                 htmlString += `
                 <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;">
@@ -368,6 +355,7 @@
                 `;
             }
 
+            htmlString += `</div>`; // Fecho do container principal
             pdfZone.innerHTML = htmlString;
             window.scrollTo(0, 0);
 
@@ -376,7 +364,7 @@
                     margin: [15, 15, 15, 15],
                     filename: nomeFicheiroFinal,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 850, scrollY: 0 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 

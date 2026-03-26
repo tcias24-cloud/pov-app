@@ -290,7 +290,6 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // V14: A GRELHA DE TITÂNIO (TABLE-LAYOUT FIXED) - CORTE 100% RESOLVIDO
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -326,24 +325,22 @@
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 
-                // TABELA BLINDADA COM LARGURA DE COLUNAS MATEMATICAMENTE FIXAS
                 htmlString += `
                 <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;">
                     <tr>
-                        <td style="width: 320px; vertical-align: top; padding: 0;">
+                        <td style="width: 320px; max-width: 320px; vertical-align: top; padding: 0;">
                             <div style="width: 320px; height: 210px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div>
                         </td>
-                        <td style="width: 30px; padding: 0;"></td> <!-- Espaçador de 30px -->
-                        <td style="width: 420px; vertical-align: top; padding: 0; padding-top: 5px;">
-                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; display: block; overflow: hidden;">
+                        <td style="width: 30px; max-width: 30px; padding: 0;"></td>
+                        <td style="width: 420px; max-width: 420px; vertical-align: top; padding: 0; padding-top: 5px;">
+                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px; display: block;">
                                 <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span>
                                 <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
+                                <div style="clear: both;"></div>
                             </div>
                             
-                            <!-- O TEXTO É FORÇADO A QUEBRAR AQUI DENTRO (WORD-BREAK) -->
-                            <div style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; word-wrap: break-word; word-break: break-word; width: 100%; overflow: hidden;">
-                                ${textoFormatado}
-                            </div>
+                            <!-- CORREÇÃO DA GUILHOTINA: Width exato, wrap ativado, overflow removido -->
+                            <div style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; min-height: 100px; width: 400px; max-width: 400px; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
                             
                             <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                                 ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}

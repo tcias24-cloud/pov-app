@@ -222,9 +222,9 @@
             btnLigarLente.style.display = "block";
             previewImagem.style.display = "block";
             painelDitado.style.display = "flex";
-            painelTags.style.display = "flex"; // Mostra as Tags
+            painelTags.style.display = "flex";
             visorNota.value = "";
-            micStatus.innerText = "Dite os factos e adicione Highlights de Venda.";
+            micStatus.innerText = "Captura Ótica Sucesso. Dite o relatório.";
             guardarBtn.style.display = "none";
         });
 
@@ -233,7 +233,7 @@
         let assinando = false; let temAssinatura = false;
         function resizeCanvas() { const rect = canvas.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; ctxCanvas.lineWidth = 2; ctxCanvas.lineCap = 'round'; ctxCanvas.strokeStyle = '#000'; }
         window.addEventListener('resize', resizeCanvas); resizeCanvas();
-        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches.clientX : e.clientX; const clientY = e.touches ? e.touches.clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: clientX - rect.left, y: clientY - rect.top }; }
         const startAssinatura = (e) => { assinando = true; const pos = getPos(e); ctxCanvas.beginPath(); ctxCanvas.moveTo(pos.x, pos.y); };
         const drawAssinatura = (e) => { if (assinando) { const pos = getPos(e); ctxCanvas.lineTo(pos.x, pos.y); ctxCanvas.stroke(); temAssinatura = true; } };
         const endAssinatura = () => { assinando = false; };
@@ -260,7 +260,8 @@
             recognition.onstart = () => { btnTarget.classList.add('recording'); };
             recognition.onresult = (e) => { 
                 let textoExistente = inputTarget.value.trim();
-                let novoTexto = e.results[e.resultIndex].transcript.trim();
+                // Correção do erro da matriz de resultados de voz
+                let novoTexto = e.results[e.resultIndex][0].transcript.trim(); 
                 inputTarget.value = textoExistente.length > 0 ? textoExistente + " " + novoTexto : novoTexto;
                 if(inputId === 'visorNota') guardarBtn.style.display = "block"; 
                 guardarMetadados(); 
@@ -291,6 +292,7 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
+        // MOTOR INVISÍVEL COM CORREÇÃO DE SINTAXE DE MARGENS
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
@@ -323,7 +325,6 @@
             `;
 
             memoriaApp.forEach((item, index) => {
-                // Preserva quebras de linha para as tags ficarem bonitas no PDF
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 
                 htmlString += `
@@ -363,8 +364,9 @@
 
             htmlString += `</div>`;
 
+            // CORREÇÃO CRÍTICA DO ERRO DE SINTAXE 'margin:' 
             const opt = {
-                margin:,
+                margin: [15, 15, 15, 15],
                 filename: nomeFicheiroFinal,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 850 },

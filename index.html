@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite V11.6</title>
+    <title>POV Inspeções - Elite V11.7</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -118,7 +118,6 @@
 
     <div class="card">
         <h2>🗂️ 4. Dossier de Elite</h2>
-        <!-- CAMPO PARA NOME DO FICHEIRO ADICIONADO AQUI -->
         <div class="input-group" style="margin-bottom: 20px;">
             <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do PDF (Ex: Vistoria_Moradia)">
         </div>
@@ -259,11 +258,10 @@
             } else { concluirGuardar("GPS não suportado pelo hardware."); }
         });
 
-        // NOVO MOTOR DE RENDERIZAÇÃO INVISÍVEL
+        // O MOTOR INVISÍVEL COM LAYOUT DE TABELA (BLINDADO CONTRA CORTES)
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             if(memoriaApp.length === 0) { alert("Atenção: Fotografe pelo menos 1 divisão antes de gerar o relatório."); return; }
             
-            // LÓGICA DO NOME DO FICHEIRO
             let nomeFicheiroFinal = inputNomePdf.value.trim();
             if (nomeFicheiroFinal === "") {
                 const tituloLimpo = inputTitulo.value.trim().replace(/\s+/g, '_') || 'Imovel';
@@ -272,12 +270,11 @@
                 if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
             }
 
-            micStatus.innerText = "A renderizar PDF via bypass gráfico...";
+            micStatus.innerText = "A renderizar layout geométrico. Aguarde...";
             this.innerText = "A PROCESSAR...";
 
-            // CONSTRUÇÃO DO HTML 100% VIRTUAL
             let htmlString = `
-            <div style="padding: 40px; font-family: 'Montserrat', sans-serif; color: #000; background: #fff; width: 800px; max-width: 800px;">
+            <div style="padding: 40px; font-family: 'Montserrat', sans-serif; color: #000; background: #fff; width: 800px; max-width: 800px; margin: 0 auto;">
                 <div style="text-align: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 30px; margin-bottom: 40px;">
                     <div style="font-weight: 600; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 20px;">
                         ${inputAgencia.value.trim() !== "" ? inputAgencia.value : "POV INSPEÇÕES - ELITE"}
@@ -291,16 +288,21 @@
                 </div>
             `;
 
+            // LAYOUT DE TABELA: Impede matematicamente que a imagem esmague ou corte
             memoriaApp.forEach((item, index) => {
                 htmlString += `
-                <div style="display: flex; align-items: stretch; margin-bottom: 30px; background: #fff; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; page-break-inside: avoid;">
-                    <img src="${item.imagem}" style="width: 320px; height: 210px; object-fit: cover; flex-shrink: 0; border: 1px solid #ddd; background-color: #ececec;">
-                    <div style="flex: 1; padding: 5px 0 5px 25px; display: flex; flex-direction: column; justify-content: flex-start;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px;">
-                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px;">${item.categoria}</span>
-                            <span style="font-size: 10px; color: #999;">REF. 0${index + 1}</span>
+                <div style="page-break-inside: avoid; margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; width: 100%; display: table;">
+                    <div style="display: table-cell; width: 320px; vertical-align: top;">
+                        <div style="width: 320px; height: 210px; background-color: #ececec; border: 1px solid #ddd; text-align: center; line-height: 210px; overflow: hidden;">
+                            <img src="${item.imagem}" style="max-width: 320px; max-height: 210px; width: auto; height: auto; vertical-align: middle;">
                         </div>
-                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0; flex: 1;">${item.texto}</p>
+                    </div>
+                    <div style="display: table-cell; padding-left: 25px; vertical-align: top;">
+                        <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; margin-bottom: 12px;">
+                            <span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px;">${item.categoria}</span>
+                            <span style="font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span>
+                        </div>
+                        <p style="font-family: 'Playfair Display', serif; font-size: 14px; color: #222; line-height: 1.6; margin: 0;">${item.texto}</p>
                         <div style="margin-top: 15px; font-size: 9px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 10px;">
                             ⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}
                         </div>
@@ -324,12 +326,12 @@
                 margin: [15, 15, 15, 15],
                 filename: nomeFicheiroFinal,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                // Comando letal para proteger os cortes nas margens das folhas
+                pagebreak: { mode: ['avoid-all', 'css'] } 
             };
 
-            // O MOTOR RECEBE A STRING VIRTUAL, IGNORANDO O ECRÃ DO TELEMÓVEL
             html2pdf().set(opt).from(htmlString).save().then(() => {
                 micStatus.innerText = "Dossier emitido com sucesso.";
                 document.getElementById('gerarPdfBtn').innerText = "GERAR DOSSIER DE LUXO (PDF)";

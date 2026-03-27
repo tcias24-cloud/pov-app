@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V23</title>
+    <title>POV App - Enterprise CRM V24</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -21,7 +21,9 @@
         
         .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
         .upload-lbl.loaded { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; font-weight: bold; }
-        input[type="file"] { display: none; }
+        
+        /* CORREÇÃO CIRÚRGICA DE SEGURANÇA: Botões 1px em vez de display:none */
+        .hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
@@ -82,9 +84,9 @@
             <h2>🏢 1. Identificação da Imobiliária</h2>
             <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
-            <!-- CORREÇÃO CIRÚRGICA 1: Etiquetas separadas dos inputs para proteger o DOM -->
+            
             <label class="upload-lbl" id="lblLogo" for="fileLogo">📷 Logótipo da Agência</label>
-            <input type="file" id="fileLogo" accept="image/*">
+            <input type="file" id="fileLogo" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
         </div>
 
         <div class="card">
@@ -104,28 +106,28 @@
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
             <div style="display: flex; gap: 10px;">
                 <label class="upload-lbl" id="lblCCFrente" for="fileCCF" style="flex:1;">📷 CC (Frente)</label>
-                <input type="file" id="fileCCF" accept="image/*">
+                <input type="file" id="fileCCF" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
                 <label class="upload-lbl" id="lblCCVerso" for="fileCCV" style="flex:1;">📷 CC (Verso)</label>
-                <input type="file" id="fileCCV" accept="image/*">
+                <input type="file" id="fileCCV" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
             </div>
         </div>
 
         <div class="card">
             <h2>📂 4. Documentos Legais</h2>
             <label class="upload-lbl" id="lblCaderneta" for="fileCaderneta">📷 Caderneta Predial</label>
-            <input type="file" id="fileCaderneta" accept="image/*">
+            <input type="file" id="fileCaderneta" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
             
             <label class="upload-lbl" id="lblRegisto" for="fileRegisto">📷 Registo Predial</label>
-            <input type="file" id="fileRegisto" accept="image/*">
+            <input type="file" id="fileRegisto" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
             
             <label class="upload-lbl" id="lblLicenca" for="fileLicenca">📷 Licença de Utilização</label>
-            <input type="file" id="fileLicenca" accept="image/*">
+            <input type="file" id="fileLicenca" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
             
             <label class="upload-lbl" id="lblCertificado" for="fileCertificado">📷 Certificado Energético</label>
-            <input type="file" id="fileCertificado" accept="image/*">
+            <input type="file" id="fileCertificado" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
             
             <label class="upload-lbl" id="lblOutros" for="fileOutros">📷 Outros Documentos</label>
-            <input type="file" id="fileOutros" accept="image/*">
+            <input type="file" id="fileOutros" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
         </div>
 
         <div class="card">
@@ -145,7 +147,8 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px;">GRELHA ÓTICA</button>
                 <button id="btnCameraNativa" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37;">CÂMARA NATIVA</button>
-                <input type="file" id="inputCameraNativa" accept="image/*" style="display:none;">
+                <!-- CAPTURE REINSERIDO PARA FORÇAR A CÂMARA NESTE BOTÃO -->
+                <input type="file" id="inputCameraNativa" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*" capture="environment">
             </div>
             
             <div id="moduloCamera">
@@ -192,8 +195,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MEMÓRIA V23 - ISOLAMENTO GARANTIDO
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v23')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v24')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -210,7 +212,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v23', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v24', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -231,7 +233,6 @@
             });
         }
 
-        // CORREÇÃO CIRÚRGICA 2: Mapeamento blindado dos Documentos para a Interface
         const docLabels = {
             'logo': 'lblLogo', 'ccF': 'lblCCFrente', 'ccV': 'lblCCVerso',
             'caderneta': 'lblCaderneta', 'registo': 'lblRegisto', 'licenca': 'lblLicenca',
@@ -272,7 +273,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v23'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v24'); crmData = []; renderizarDashboard();
             }
         });
 

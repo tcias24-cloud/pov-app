@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Enterprise V20</title>
+    <title>POV Inspeções - Elite Final</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -81,18 +81,18 @@
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
             <div style="display: flex; gap: 10px;">
-                <label class="upload-lbl" id="lblCCFrente">📷 CC (Frente)<input type="file" id="fileCCF" accept="image/*" capture="environment"></label>
-                <label class="upload-lbl" id="lblCCVerso">📷 CC (Verso)<input type="file" id="fileCCV" accept="image/*" capture="environment"></label>
+                <label class="upload-lbl" id="lblCCFrente">📷 CC (Frente)<input type="file" id="fileCCF" accept="image/*"></label>
+                <label class="upload-lbl" id="lblCCVerso">📷 CC (Verso)<input type="file" id="fileCCV" accept="image/*"></label>
             </div>
         </div>
 
         <div class="card">
             <h2>📂 4. Lista de Documentos Legais</h2>
-            <label class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial (Finanças)<input type="file" id="fileCaderneta" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblRegisto">📷 Registo Predial (Conservatória)<input type="file" id="fileRegisto" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblLicenca">📷 Licença de Utilização (Câmara)<input type="file" id="fileLicenca" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblCertificado">📷 Certificado Energético (ADENE)<input type="file" id="fileCertificado" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblOutros">📷 Outros Documentos<input type="file" id="fileOutros" accept="image/*" capture="environment"></label>
+            <label class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial (Finanças)<input type="file" id="fileCaderneta" accept="image/*"></label>
+            <label class="upload-lbl" id="lblRegisto">📷 Registo Predial (Conservatória)<input type="file" id="fileRegisto" accept="image/*"></label>
+            <label class="upload-lbl" id="lblLicenca">📷 Licença de Utilização (Câmara)<input type="file" id="fileLicenca" accept="image/*"></label>
+            <label class="upload-lbl" id="lblCertificado">📷 Certificado Energético (ADENE)<input type="file" id="fileCertificado" accept="image/*"></label>
+            <label class="upload-lbl" id="lblOutros">📷 Outros Documentos<input type="file" id="fileOutros" accept="image/*"></label>
         </div>
 
         <div class="card">
@@ -162,14 +162,13 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MUDANÇA DE DB PARA V20 - GARANTE ARRANQUE LIMPO
-        let metadados = JSON.parse(localStorage.getItem('pov_meta_v20')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
-        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v20')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
-        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v20')) || [];
+        // MEMÓRIA V21 - ARRANQUE VIRGEM E BLINDADO
+        let metadados = JSON.parse(localStorage.getItem('pov_meta_v21')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
+        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v21')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
+        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v21')) || [];
         let tempImagemBase64 = "";
         let streamAtivo = null;
 
-        // CORREÇÃO 1: MAPEAMENTO DIRETO E ABSOLUTO (SEM ERROS DE MAIÚSCULAS/MINÚSCULAS)
         const mapMeta = [
             { id: 'inputAgencia', key: 'agencia' },
             { id: 'inputAMI', key: 'ami' },
@@ -187,7 +186,7 @@
                 el.value = metadados[b.key] || "";
                 el.addEventListener('input', (e) => { 
                     metadados[b.key] = e.target.value; 
-                    localStorage.setItem('pov_meta_v20', JSON.stringify(metadados)); 
+                    localStorage.setItem('pov_meta_v21', JSON.stringify(metadados)); 
                 });
             }
         });
@@ -212,7 +211,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
-                        localStorage.setItem('pov_docs_v20', JSON.stringify(docsApp));
+                        localStorage.setItem('pov_docs_v21', JSON.stringify(docsApp));
                         lbl.classList.add('loaded');
                         if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', '');
                     }
@@ -234,7 +233,6 @@
             let textoAtual = document.getElementById('visorNota').value.trim();
             let novaLinha = textoAtual.length > 0 ? '\n' : '';
             document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
-            // Atualiza o botão de guardar caso o utilizador interaja
             if (tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
         }
 
@@ -270,7 +268,6 @@
             document.getElementById('visorNota').value = "";
             document.getElementById('micStatus').innerText = "Captura Sucesso. Dite a vistoria ou guarde diretamente.";
             
-            // CORREÇÃO 2: MOSTRAR BOTÃO DE GUARDAR IMEDIATAMENTE (NÃO EXIGE TEXTO)
             document.getElementById('guardarBtn').style.display = "block";
         });
 
@@ -325,7 +322,6 @@
         }
         renderizarInterface();
 
-        // Geração do Botão mantida caso escreva (apesar de agora aparecer logo)
         document.getElementById('visorNota').addEventListener('input', function() { 
             if(tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block"; 
         });
@@ -334,7 +330,7 @@
             this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                localStorage.setItem('pov_db_v20', JSON.stringify(memoriaApp));
+                localStorage.setItem('pov_db_v21', JSON.stringify(memoriaApp));
                 renderizarInterface();
                 tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
             };
@@ -483,6 +479,7 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
+                // BUG SINTÁTICO RESOLVIDO: Margens repostas e seguras.
                 const opt = {
                     margin: [15, 15, 15, 15],
                     filename: nomeFicheiroFinal,
@@ -502,7 +499,7 @@
 
         document.getElementById('limparBtn').addEventListener('click', function() {
             if(confirm("PERIGO: Esta ação formata a App. Tem a certeza?")) {
-                localStorage.removeItem('pov_db_v20'); localStorage.removeItem('pov_meta_v20'); localStorage.removeItem('pov_docs_v20');
+                localStorage.removeItem('pov_db_v21'); localStorage.removeItem('pov_meta_v21'); localStorage.removeItem('pov_docs_v21');
                 window.location.reload();
             }
         });

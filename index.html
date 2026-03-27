@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V24</title>
+    <title>POV App - Enterprise CRM V25</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -19,11 +19,11 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        /* CORREÇÃO CIRÚRGICA 1: Arquitetura Overlay (100% blindado contra bloqueios Android/iOS) */
+        .upload-wrapper { position: relative; width: 100%; margin-bottom: 10px; display: block; }
+        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; pointer-events: none; }
         .upload-lbl.loaded { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; font-weight: bold; }
-        
-        /* CORREÇÃO CIRÚRGICA DE SEGURANÇA: Botões 1px em vez de display:none */
-        .hidden-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+        .hidden-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
 
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
@@ -66,7 +66,6 @@
 </head>
 <body>
 
-    <!-- CRM DASHBOARD -->
     <div id="crm-dashboard">
         <div class="card">
             <h2>🗂️ POV CRM - Gestor de Clientes</h2>
@@ -76,7 +75,6 @@
         </div>
     </div>
 
-    <!-- EDITOR DO IMÓVEL -->
     <div id="app-ui-container">
         <button id="btnVoltarCRM" class="btn-voltar">⬅️ GUARDAR E VOLTAR ÀS PASTAS</button>
         
@@ -85,8 +83,10 @@
             <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
             
-            <label class="upload-lbl" id="lblLogo" for="fileLogo">📷 Logótipo da Agência</label>
-            <input type="file" id="fileLogo" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
+            <div class="upload-wrapper">
+                <div class="upload-lbl" id="lblLogo">📷 Logótipo da Agência</div>
+                <input type="file" id="fileLogo" class="hidden-input" accept="image/*">
+            </div>
         </div>
 
         <div class="card">
@@ -105,29 +105,24 @@
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
             <div style="display: flex; gap: 10px;">
-                <label class="upload-lbl" id="lblCCFrente" for="fileCCF" style="flex:1;">📷 CC (Frente)</label>
-                <input type="file" id="fileCCF" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
-                <label class="upload-lbl" id="lblCCVerso" for="fileCCV" style="flex:1;">📷 CC (Verso)</label>
-                <input type="file" id="fileCCV" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
+                <div class="upload-wrapper" style="flex:1;">
+                    <div class="upload-lbl" id="lblCCFrente">📷 CC (Frente)</div>
+                    <input type="file" id="fileCCF" class="hidden-input" accept="image/*">
+                </div>
+                <div class="upload-wrapper" style="flex:1;">
+                    <div class="upload-lbl" id="lblCCVerso">📷 CC (Verso)</div>
+                    <input type="file" id="fileCCV" class="hidden-input" accept="image/*">
+                </div>
             </div>
         </div>
 
         <div class="card">
             <h2>📂 4. Documentos Legais</h2>
-            <label class="upload-lbl" id="lblCaderneta" for="fileCaderneta">📷 Caderneta Predial</label>
-            <input type="file" id="fileCaderneta" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
-            
-            <label class="upload-lbl" id="lblRegisto" for="fileRegisto">📷 Registo Predial</label>
-            <input type="file" id="fileRegisto" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
-            
-            <label class="upload-lbl" id="lblLicenca" for="fileLicenca">📷 Licença de Utilização</label>
-            <input type="file" id="fileLicenca" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
-            
-            <label class="upload-lbl" id="lblCertificado" for="fileCertificado">📷 Certificado Energético</label>
-            <input type="file" id="fileCertificado" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
-            
-            <label class="upload-lbl" id="lblOutros" for="fileOutros">📷 Outros Documentos</label>
-            <input type="file" id="fileOutros" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*">
+            <div class="upload-wrapper"><div class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial</div><input type="file" id="fileCaderneta" class="hidden-input" accept="image/*"></div>
+            <div class="upload-wrapper"><div class="upload-lbl" id="lblRegisto">📷 Registo Predial</div><input type="file" id="fileRegisto" class="hidden-input" accept="image/*"></div>
+            <div class="upload-wrapper"><div class="upload-lbl" id="lblLicenca">📷 Licença de Utilização</div><input type="file" id="fileLicenca" class="hidden-input" accept="image/*"></div>
+            <div class="upload-wrapper"><div class="upload-lbl" id="lblCertificado">📷 Certificado Energético</div><input type="file" id="fileCertificado" class="hidden-input" accept="image/*"></div>
+            <div class="upload-wrapper"><div class="upload-lbl" id="lblOutros">📷 Outros Documentos</div><input type="file" id="fileOutros" class="hidden-input" accept="image/*"></div>
         </div>
 
         <div class="card">
@@ -146,9 +141,10 @@
 
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px;">GRELHA ÓTICA</button>
-                <button id="btnCameraNativa" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37;">CÂMARA NATIVA</button>
-                <!-- CAPTURE REINSERIDO PARA FORÇAR A CÂMARA NESTE BOTÃO -->
-                <input type="file" id="inputCameraNativa" class="hidden-input" accept="image/jpeg, image/png, image/jpg, image/*" capture="environment">
+                <div id="wrapperCameraNativa" class="upload-wrapper" style="margin-bottom:0; flex:1;">
+                    <div class="btn-acao" style="margin-bottom:0; width:100%; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding: 15px; box-sizing: border-box; text-align: center; pointer-events: none;">CÂMARA NATIVA</div>
+                    <input type="file" id="inputCameraNativa" class="hidden-input" accept="image/*" capture="environment">
+                </div>
             </div>
             
             <div id="moduloCamera">
@@ -195,7 +191,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v24')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v25')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -212,7 +208,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v24', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v25', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -273,7 +269,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v24'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v25'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -314,7 +310,7 @@
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('videoElement').srcObject = streamAtivo;
                 document.getElementById('moduloCamera').style.display = "block";
-                document.getElementById('btnLigarLente').style.display = "none"; document.getElementById('btnCameraNativa').style.display = "none";
+                document.getElementById('btnLigarLente').style.display = "none"; document.getElementById('wrapperCameraNativa').style.display = "none";
                 document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none";
                 document.getElementById('painelTags').style.display = "none"; document.getElementById('guardarBtn').style.display = "none";
                 document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
@@ -331,8 +327,6 @@
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
             document.getElementById('moduloCamera').style.display = "none";
         });
-
-        document.getElementById('btnCameraNativa').addEventListener('click', () => { document.getElementById('inputCameraNativa').click(); });
 
         document.getElementById('inputCameraNativa').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
@@ -353,7 +347,7 @@
 
         function concluirCaptura(base64Image) {
             tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
-            document.getElementById('btnLigarLente').style.display = "block"; document.getElementById('btnCameraNativa').style.display = "block";
+            document.getElementById('btnLigarLente').style.display = "block"; document.getElementById('wrapperCameraNativa').style.display = "block";
             document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
             document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; document.getElementById('guardarBtn').style.display = "block";

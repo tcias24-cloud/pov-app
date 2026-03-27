@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV Inspeções - Elite Final</title>
+    <title>POV App - Enterprise CRM V22</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
-        #app-ui-container { display: block; width: 100%; }
         .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
         .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 15px; font-size: 13px; font-weight: 600; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
@@ -49,34 +48,58 @@
         .ui-img-box { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; }
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
+        .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
+        
+        /* ESTILOS CRM (DASHBOARD) */
+        #crm-dashboard { display: block; }
+        #app-ui-container { display: none; }
+        .crm-item { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border-left: 4px solid #d4af37; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .crm-item:hover { background: #222; }
+        .crm-title { font-weight: bold; font-size: 14px; color: #fff; margin-bottom: 4px; }
+        .crm-ref { font-size: 11px; color: #aaa; text-transform: uppercase; }
+        .btn-voltar { background: transparent; color: #d4af37; border: 1px solid #d4af37; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 20px; text-transform: uppercase; font-size: 11px; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <!-- TELA 1: CRM DASHBOARD -->
+    <div id="crm-dashboard">
+        <div class="card">
+            <h2>🗂️ POV CRM - Gestor de Clientes</h2>
+            <div id="lista-crm" style="margin-bottom: 20px;">
+                <!-- Lista de Imóveis vai aparecer aqui -->
+            </div>
+            <button id="btnNovaPasta" class="btn-acao btn-pdf">➕ NOVA ANGARIAÇÃO (CRIAR PASTA)</button>
+            <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #555; border: 1px solid #333; margin-top: 20px; font-size: 10px;">Formatar Base de Dados</button>
+        </div>
+    </div>
+
+    <!-- TELA 2: EDITOR DO IMÓVEL (V21 MANTIDO E ATUALIZADO) -->
     <div id="app-ui-container">
+        <button id="btnVoltarCRM" class="btn-voltar">⬅️ GUARDAR E VOLTAR ÀS PASTAS</button>
         
         <div class="card">
             <h2>🏢 1. Identificação da Imobiliária</h2>
-            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência (Ex: POV Real Estate)" style="border-color: #d4af37;"></div>
-            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI (Ex: 12345)"></div>
-            <label class="upload-lbl" id="lblLogo">📷 Inserir Logótipo da Agência<input type="file" id="fileLogo" accept="image/*"></label>
+            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
+            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
+            <label class="upload-lbl" id="lblLogo">📷 Logótipo da Agência<input type="file" id="fileLogo" accept="image/*"></label>
         </div>
 
         <div class="card">
             <h2>📍 2. Identificação do Imóvel</h2>
             <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Referência (Ex: ID-001)"></div>
             <div class="input-group">
-                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização / Morada do Imóvel">
+                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização">
                 <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
             </div>
-            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Preço de Venda (€)"></div>
+            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Preço (€)"></div>
         </div>
 
         <div class="card">
-            <h2>👤 3. Identificação do Proprietário</h2>
+            <h2>👤 3. Dados do Proprietário</h2>
             <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome Completo"></div>
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
@@ -87,16 +110,16 @@
         </div>
 
         <div class="card">
-            <h2>📂 4. Lista de Documentos Legais</h2>
-            <label class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial (Finanças)<input type="file" id="fileCaderneta" accept="image/*"></label>
-            <label class="upload-lbl" id="lblRegisto">📷 Registo Predial (Conservatória)<input type="file" id="fileRegisto" accept="image/*"></label>
-            <label class="upload-lbl" id="lblLicenca">📷 Licença de Utilização (Câmara)<input type="file" id="fileLicenca" accept="image/*"></label>
-            <label class="upload-lbl" id="lblCertificado">📷 Certificado Energético (ADENE)<input type="file" id="fileCertificado" accept="image/*"></label>
+            <h2>📂 4. Documentos Legais</h2>
+            <label class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial<input type="file" id="fileCaderneta" accept="image/*"></label>
+            <label class="upload-lbl" id="lblRegisto">📷 Registo Predial<input type="file" id="fileRegisto" accept="image/*"></label>
+            <label class="upload-lbl" id="lblLicenca">📷 Licença de Utilização<input type="file" id="fileLicenca" accept="image/*"></label>
+            <label class="upload-lbl" id="lblCertificado">📷 Certificado Energético<input type="file" id="fileCertificado" accept="image/*"></label>
             <label class="upload-lbl" id="lblOutros">📷 Outros Documentos<input type="file" id="fileOutros" accept="image/*"></label>
         </div>
 
         <div class="card">
-            <h2>📷 5. Vistoria e Características Técnicas</h2>
+            <h2>📷 5. Motor de Vistoria (Dual-Camera)</h2>
             <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
                 <option value="Exterior / Fachada">Exterior / Fachada</option>
                 <option value="Hall de Entrada">Hall de Entrada</option>
@@ -105,13 +128,16 @@
                 <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
                 <option value="Quarto">Quarto</option>
                 <option value="Casa de Banho">Casa de Banho</option>
-                <option value="Escritório">Escritório</option>
-                <option value="Garagem">Garagem</option>
                 <option value="Jardim / Piscina">Jardim / Piscina</option>
                 <option value="Cave / Arrumos">Cave / Arrumos</option>
             </select>
 
-            <button id="btnLigarLente" class="btn-acao">ATIVAR LENTE TÉCNICA</button>
+            <!-- NOVO SISTEMA DUAL-CAMERA -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px;">GRELHA ÓTICA</button>
+                <button id="btnCameraNativa" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37;">CÂMARA NATIVA</button>
+                <input type="file" id="inputCameraNativa" accept="image/*" capture="environment" style="display:none;">
+            </div>
             
             <div id="moduloCamera">
                 <video id="videoElement" autoplay playsinline></video>
@@ -136,117 +162,181 @@
                 <button class="smart-tag" onclick="adicionarTag('🔑 Pronto a Habitar')">+ Habitar</button>
                 <button class="smart-tag" onclick="adicionarTag('🌳 Zona Tranquila')">+ Paz</button>
                 <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas')">+ Áreas</button>
-                <button class="smart-tag" onclick="adicionarTag('🛠️ Excelente Conservação')">+ Conservação</button>
             </div>
             
             <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR ESPAÇO E GPS</button>
         </div>
 
         <div class="card">
-            <h2>✍️ 6. Assinatura Digital do Proprietário</h2>
+            <h2>✍️ 6. Assinatura do Proprietário</h2>
             <canvas id="canvasAssinatura"></canvas>
             <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
         </div>
 
         <div class="card">
-            <h2>🗂️ EMISSÃO DO DOSSIER</h2>
-            <div class="input-group" style="margin-bottom: 20px;">
-                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do Ficheiro (Ex: Angariacao_ID001)">
-            </div>
-            <div id="log-ui">Ainda sem registos técnicos na memória.</div>
-            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR FICHA DE ANGARIAÇÃO (PDF)</button>
-            <button id="limparBtn" class="btn-acao" style="background-color: transparent; border: 1px solid #333; color: #888; margin-top: 15px;">Formatar Sistema Inteiro</button>
+            <h2>🗂️ EMISSÃO E DOWNLOADS</h2>
+            <div id="log-ui">Ainda sem registos técnicos nesta pasta.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE ANGARIAÇÃO (PDF)</button>
         </div>
     </div>
 
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MEMÓRIA V21 - ARRANQUE VIRGEM E BLINDADO
-        let metadados = JSON.parse(localStorage.getItem('pov_meta_v21')) || { agencia: "", ami: "", ref: "", local: "", preco: "", nomeProp: "", contactoProp: "", moradaProp: "" };
-        let docsApp = JSON.parse(localStorage.getItem('pov_docs_v21')) || { logo: "", ccF: "", ccV: "", caderneta: "", registo: "", licenca: "", certificado: "", outros: "" };
-        let memoriaApp = JSON.parse(localStorage.getItem('pov_db_v21')) || [];
-        let tempImagemBase64 = "";
-        let streamAtivo = null;
+        // ==========================================
+        // ARQUITETURA CRM (BASE DE DADOS V22)
+        // ==========================================
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v22')) || [];
+        let activeIndex = -1; // -1 significa que estamos no Dashboard
+        
+        // Estruturas Ativas (A Pasta Aberta)
+        let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
+        let tempImagemBase64 = ""; let streamAtivo = null;
 
+        // ELEMENTOS DE NAVEGAÇÃO
+        const uiDashboard = document.getElementById('crm-dashboard');
+        const uiEditor = document.getElementById('app-ui-container');
+        const listaCRM = document.getElementById('lista-crm');
+
+        function guardarNoCRM() {
+            if (activeIndex === -1) return;
+            crmData[activeIndex] = {
+                id: crmData[activeIndex].id || new Date().getTime(),
+                titulo: metadados.local || metadados.ref || "Nova Angariação " + (activeIndex + 1),
+                data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
+                meta: metadados,
+                docs: docsApp,
+                fotos: memoriaApp,
+                assinatura: assinaturaSalvaBase64
+            };
+            localStorage.setItem('pov_crm_v22', JSON.stringify(crmData));
+            renderizarDashboard();
+        }
+
+        function renderizarDashboard() {
+            listaCRM.innerHTML = "";
+            if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:12px;'>Sem pastas ativas. Crie uma nova angariação.</p>"; return; }
+            
+            crmData.forEach((pasta, index) => {
+                const numFotos = pasta.fotos ? pasta.fotos.length : 0;
+                listaCRM.innerHTML += `
+                    <div class="crm-item" onclick="abrirPasta(${index})">
+                        <div>
+                            <div class="crm-title">${pasta.titulo}</div>
+                            <div class="crm-ref">Criado a: ${pasta.data} | 📷 ${numFotos} Fotos</div>
+                        </div>
+                        <div style="color:#d4af37; font-size:18px;">➔</div>
+                    </div>
+                `;
+            });
+        }
+
+        function abrirPasta(index) {
+            activeIndex = index;
+            const pasta = crmData[index];
+            metadados = pasta.meta || {};
+            docsApp = pasta.docs || {};
+            memoriaApp = pasta.fotos || [];
+            assinaturaSalvaBase64 = pasta.assinatura || "";
+            
+            // Popula os inputs
+            mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
+            
+            // Restaura estado dos Documentos UI
+            ['logo','ccF','ccV','caderneta','registo','licenca','certificado','outros'].forEach(k => {
+                const lbl = document.getElementById('lbl' + k.charAt(0).toUpperCase() + k.slice(1));
+                if(lbl) {
+                    if(docsApp[k]) { lbl.classList.add('loaded'); if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', ''); }
+                    else { lbl.classList.remove('loaded'); lbl.innerText = lbl.innerText.replace('✅ ', '📷 '); }
+                }
+            });
+
+            renderizarInterface();
+            
+            // Desenha assinatura se existir
+            ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height);
+            if(assinaturaSalvaBase64 !== "") {
+                const img = new Image(); img.onload = () => ctxAssinatura.drawImage(img, 0, 0); img.src = assinaturaSalvaBase64; temAssinatura = true;
+            } else { temAssinatura = false; }
+
+            uiDashboard.style.display = "none";
+            uiEditor.style.display = "block";
+            window.scrollTo(0,0);
+        }
+
+        document.getElementById('btnNovaPasta').addEventListener('click', () => {
+            crmData.push({ id: new Date().getTime(), titulo: "Rascunho...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
+            abrirPasta(crmData.length - 1);
+        });
+
+        document.getElementById('btnVoltarCRM').addEventListener('click', () => {
+            guardarNoCRM(); // Salva estado atual
+            uiEditor.style.display = "none";
+            uiDashboard.style.display = "block";
+            window.scrollTo(0,0);
+        });
+
+        document.getElementById('btnLimparTudo').addEventListener('click', () => {
+            if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
+                localStorage.removeItem('pov_crm_v22'); crmData = []; renderizarDashboard();
+            }
+        });
+
+        // ==========================================
+        // LÓGICA DO EDITOR (V21 ADAPTADO PARA AUTO-SAVE)
+        // ==========================================
         const mapMeta = [
-            { id: 'inputAgencia', key: 'agencia' },
-            { id: 'inputAMI', key: 'ami' },
-            { id: 'inputReferencia', key: 'ref' },
-            { id: 'inputLocal', key: 'local' },
-            { id: 'inputPreco', key: 'preco' },
-            { id: 'inputNomeProp', key: 'nomeProp' },
-            { id: 'inputContactoProp', key: 'contactoProp' },
-            { id: 'inputMoradaProp', key: 'moradaProp' }
+            { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
+            { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
+            { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
         ];
 
         mapMeta.forEach(b => {
             const el = document.getElementById(b.id);
-            if(el) {
-                el.value = metadados[b.key] || "";
-                el.addEventListener('input', (e) => { 
-                    metadados[b.key] = e.target.value; 
-                    localStorage.setItem('pov_meta_v21', JSON.stringify(metadados)); 
-                });
-            }
+            if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }
         });
 
         function setupDocUpload(inputId, lblId, docKey) {
-            const input = document.getElementById(inputId);
-            const lbl = document.getElementById(lblId);
-            if(docsApp[docKey]) { lbl.classList.add('loaded'); lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', ''); }
-            
+            const input = document.getElementById(inputId); const lbl = document.getElementById(lblId);
             input.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if(!file) return;
+                const file = e.target.files[0]; if(!file) return;
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let maxW = docKey === 'logo' ? 400 : 800; 
-                        let w = img.width, h = img.height;
-                        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-                        canvas.width = w; canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
+                        const canvas = document.createElement('canvas'); let maxW = docKey === 'logo' ? 400 : 800; 
+                        let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
-                        localStorage.setItem('pov_docs_v21', JSON.stringify(docsApp));
-                        lbl.classList.add('loaded');
-                        if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', '');
+                        guardarNoCRM();
+                        lbl.classList.add('loaded'); if(!lbl.innerText.startsWith("✅")) lbl.innerText = "✅ " + lbl.innerText.replace('📷 ', '');
                     }
                     img.src = event.target.result;
                 }
                 reader.readAsDataURL(file);
             });
         }
-        setupDocUpload('fileLogo', 'lblLogo', 'logo');
-        setupDocUpload('fileCCF', 'lblCCFrente', 'ccF');
-        setupDocUpload('fileCCV', 'lblCCVerso', 'ccV');
-        setupDocUpload('fileCaderneta', 'lblCaderneta', 'caderneta');
-        setupDocUpload('fileRegisto', 'lblRegisto', 'registo');
-        setupDocUpload('fileLicenca', 'lblLicenca', 'licenca');
-        setupDocUpload('fileCertificado', 'lblCertificado', 'certificado');
-        setupDocUpload('fileOutros', 'lblOutros', 'outros');
+        setupDocUpload('fileLogo', 'lblLogo', 'logo'); setupDocUpload('fileCCF', 'lblCCFrente', 'ccF'); setupDocUpload('fileCCV', 'lblCCVerso', 'ccV');
+        setupDocUpload('fileCaderneta', 'lblCaderneta', 'caderneta'); setupDocUpload('fileRegisto', 'lblRegisto', 'registo'); setupDocUpload('fileLicenca', 'lblLicenca', 'licenca');
+        setupDocUpload('fileCertificado', 'lblCertificado', 'certificado'); setupDocUpload('fileOutros', 'lblOutros', 'outros');
 
-        function adicionarTag(textoTag) {
-            let textoAtual = document.getElementById('visorNota').value.trim();
-            let novaLinha = textoAtual.length > 0 ? '\n' : '';
-            document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
-            if (tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
-        }
-
+        // ==========================================
+        // DUAL-CAMERA ENGINE (GRELHA VS HARDWARE NATIVO)
+        // ==========================================
+        
+        // Opção 1: Grelha (WebRTC)
         document.getElementById('btnLigarLente').addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('videoElement').srcObject = streamAtivo;
                 document.getElementById('moduloCamera').style.display = "block";
                 document.getElementById('btnLigarLente').style.display = "none";
+                document.getElementById('btnCameraNativa').style.display = "none";
                 document.getElementById('previewImagem').style.display = "none";
                 document.getElementById('painelDitado').style.display = "none";
                 document.getElementById('painelTags').style.display = "none";
                 document.getElementById('guardarBtn').style.display = "none";
-                document.getElementById('micStatus').innerText = "Lente Técnica Ativada.";
+                document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
             } catch (err) { alert("Acesso à câmera negado."); }
         });
 
@@ -254,83 +344,94 @@
             const video = document.getElementById('videoElement');
             let w = video.videoWidth, h = video.videoHeight;
             if (w > 1024) { h = h * (1024 / w); w = 1024; }
-            const cvs = document.getElementById('canvasOculto');
-            cvs.width = w; cvs.height = h;
+            const cvs = document.getElementById('canvasOculto'); cvs.width = w; cvs.height = h;
             cvs.getContext('2d').drawImage(video, 0, 0, w, h);
-            tempImagemBase64 = cvs.toDataURL('image/jpeg', 0.6);
-            document.getElementById('previewImagem').src = tempImagemBase64;
+            concluirCaptura(cvs.toDataURL('image/jpeg', 0.8));
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
             document.getElementById('moduloCamera').style.display = "none";
+        });
+
+        // Opção 2: Hardware Nativo (Zoom, Flash, Rotação)
+        document.getElementById('btnCameraNativa').addEventListener('click', () => {
+            document.getElementById('inputCameraNativa').click();
+        });
+
+        document.getElementById('inputCameraNativa').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if(!file) return;
+            document.getElementById('micStatus').innerText = "A processar ótica...";
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    // Limite generoso (1200px) para alta qualidade, sem estourar o PDF
+                    if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    concluirCaptura(canvas.toDataURL('image/jpeg', 0.8));
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function concluirCaptura(base64Image) {
+            tempImagemBase64 = base64Image;
+            document.getElementById('previewImagem').src = tempImagemBase64;
             document.getElementById('btnLigarLente').style.display = "block";
+            document.getElementById('btnCameraNativa').style.display = "block";
             document.getElementById('previewImagem').style.display = "block";
             document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex";
             document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Captura Sucesso. Dite a vistoria ou guarde diretamente.";
-            
+            document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão.";
             document.getElementById('guardarBtn').style.display = "block";
-        });
-
-        const canvasAssinatura = document.getElementById('canvasAssinatura');
-        const ctxAssinatura = canvasAssinatura.getContext('2d');
-        let assinando = false; let temAssinatura = false; let assinaturaSalvaBase64 = "";
-
-        function inicializarCanvas() {
-            const rect = canvasAssinatura.parentElement.getBoundingClientRect();
-            canvasAssinatura.width = rect.width > 0 ? rect.width - 40 : window.innerWidth - 70; 
-            canvasAssinatura.height = 150; 
-            ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; 
         }
-        inicializarCanvas();
 
-        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
-        canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
-        canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
-        canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); });
-        canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
-        canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
-        canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); });
-        
-        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; });
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        function ativarDitado(inputId, btnId) {
-            if (!SpeechRecognition) return;
-            const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
-            const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
-            rec.onstart = () => { btn.classList.add('recording'); };
-            rec.onresult = (e) => { 
-                let tEx = target.value.trim();
-                let novo = e.results[e.resultIndex][0].transcript.trim(); 
-                target.value = tEx.length > 0 ? tEx + " " + novo : novo;
-                if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block"; 
-            };
-            rec.onend = () => { btn.classList.remove('recording'); };
-            try { rec.start(); } catch(e) {}
+        function adicionarTag(textoTag) {
+            let textoAtual = document.getElementById('visorNota').value.trim();
+            let novaLinha = textoAtual.length > 0 ? '\n' : '';
+            document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']';
         }
-        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
-        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+
+        // ==========================================
+        // DOWNLOAD DE FOTOS NATIVAS
+        // ==========================================
+        window.descarregarFoto = function(indexFoto) {
+            if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
+            const item = memoriaApp[indexFoto];
+            const a = document.createElement('a');
+            a.href = item.imagem;
+            a.download = `POV_Foto_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${indexFoto+1}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
 
         function renderizarInterface() {
             const logUi = document.getElementById('log-ui');
-            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos na memória."; return; }
+            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos nesta pasta."; return; }
             logUi.innerHTML = "";
-            memoriaApp.forEach((item) => {
-                let textoAmigavel = item.texto.length > 0 ? item.texto : "Sem descrição adicionada.";
-                logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${textoAmigavel}</p></div></div>`;
+            memoriaApp.forEach((item, index) => {
+                let txt = item.texto.length > 0 ? item.texto : "Sem comentários.";
+                logUi.innerHTML += `
+                <div class="foto-item-ui">
+                    <div class="ui-img-box" style="background-image: url('${item.imagem}');"></div>
+                    <div style="flex:1;">
+                        <div class="badge-categoria">${item.categoria}</div>
+                        <p>${txt}</p>
+                        <button class="btn-dl-img" onclick="descarregarFoto(${index})">⬇️ Descarregar Original</button>
+                    </div>
+                </div>`;
             });
         }
-        renderizarInterface();
-
-        document.getElementById('visorNota').addEventListener('input', function() { 
-            if(tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block"; 
-        });
 
         document.getElementById('guardarBtn').addEventListener('click', function() {
             this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                localStorage.setItem('pov_db_v21', JSON.stringify(memoriaApp));
+                guardarNoCRM(); // Guarda imediatamente a nova foto na pasta
                 renderizarInterface();
                 tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
             };
@@ -345,13 +446,45 @@
             } else { concluirGuardar("GPS não suportado."); }
         });
 
+        // ASSINATURA BLINDADA COM AUTO-SAVE
+        const canvasAssinatura = document.getElementById('canvasAssinatura'); const ctxAssinatura = canvasAssinatura.getContext('2d');
+        let assinando = false; let temAssinatura = false; 
+
+        function inicializarCanvas() { const r = canvasAssinatura.parentElement.getBoundingClientRect(); canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; }
+        inicializarCanvas();
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
+        canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
+        canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
+        canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
+        canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); });
+
+        // DITADO
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function ativarDitado(inputId, btnId) {
+            if (!SpeechRecognition) return;
+            const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
+            const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
+            rec.onstart = () => { btn.classList.add('recording'); };
+            rec.onresult = (e) => { 
+                let tEx = target.value.trim(); let novo = e.results[e.resultIndex][0].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
+                if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
+            };
+            rec.onend = () => { btn.classList.remove('recording'); }; try { rec.start(); } catch(e) {}
+        }
+        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
+        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+
+        // MOTOR PDF V21 (SEGURO E BLINDADO)
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
-            
             let nomeFicheiroFinal = document.getElementById('inputNomePdf').value.trim();
             if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
             if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
 
-            document.getElementById('app-ui-container').style.display = 'none';
+            uiEditor.style.display = 'none';
             document.body.style.backgroundColor = '#ffffff';
             const pdfZone = document.getElementById('pdf-render-zone');
             pdfZone.style.display = 'block';
@@ -408,7 +541,6 @@
                             </tr>
                         </table>
                     </div>
-                    
                     <div style="page-break-before: auto;"></div>
             `;
 
@@ -419,7 +551,6 @@
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>');
                 if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem comentários registados.</span>";
-                
                 htmlString += `
                 <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
                     <tr>
@@ -439,30 +570,26 @@
                             </div>
                         </td>
                     </tr>
-                </table>
-                `;
+                </table>`;
             });
 
             if (temAssinatura && assinaturaSalvaBase64 !== "") {
                 htmlString += `
                 <div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;">
                     <img src="${assinaturaSalvaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;">
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação e Acordo Legal - Proprietário</div>
-                </div>
-                `;
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação Legal - Proprietário</div>
+                </div>`;
             }
 
             let fotosAnexosHTML = "";
             const dictAnexos = { 'ccF': 'Cartão de Cidadão (Frente)', 'ccV': 'Cartão de Cidadão (Verso)', 'caderneta': 'Caderneta Predial', 'registo': 'Registo Predial', 'licenca': 'Licença de Utilização', 'certificado': 'Certificado Energético', 'outros': 'Outros Documentos' };
-            
             for (const [key, label] of Object.entries(dictAnexos)) {
                 if(docsApp[key]) {
                     fotosAnexosHTML += `
                         <div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
                             <div style="font-weight: 700; font-size: 12px; color: #111; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 5px; display: inline-block;">📋 Anexo: ${label}</div>
                             <img src="${docsApp[key]}" style="max-width: 100%; max-height: 600px; display: block; margin: 0 auto;">
-                        </div>
-                    `;
+                        </div>`;
                 }
             }
 
@@ -470,8 +597,7 @@
                 htmlString += `
                     <div style="page-break-before: always; padding-top: 20px;"></div>
                     <div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Anexos Documentais Oficiais</div>
-                    ${fotosAnexosHTML}
-                `;
+                    ${fotosAnexosHTML}`;
             }
 
             htmlString += `</div>`; 
@@ -479,30 +605,16 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                // BUG SINTÁTICO RESOLVIDO: Margens repostas e seguras.
-                const opt = {
-                    margin: [15, 15, 15, 15],
-                    filename: nomeFicheiroFinal,
-                    image: { type: 'jpeg', quality: 0.90 }, 
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
+                const opt = { margin: [15, 15, 15, 15], filename: nomeFicheiroFinal, image: { type: 'jpeg', quality: 0.90 }, html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 html2pdf().set(opt).from(pdfZone).save().then(() => {
-                    pdfZone.style.display = 'none';
-                    pdfZone.innerHTML = '';
-                    document.body.style.backgroundColor = '#050505';
-                    document.getElementById('app-ui-container').style.display = 'block';
+                    pdfZone.style.display = 'none'; pdfZone.innerHTML = '';
+                    document.body.style.backgroundColor = '#050505'; uiEditor.style.display = 'block';
                 });
             }, 1500); 
         });
 
-        document.getElementById('limparBtn').addEventListener('click', function() {
-            if(confirm("PERIGO: Esta ação formata a App. Tem a certeza?")) {
-                localStorage.removeItem('pov_db_v21'); localStorage.removeItem('pov_meta_v21'); localStorage.removeItem('pov_docs_v21');
-                window.location.reload();
-            }
-        });
+        // ARRANQUE INICIAL
+        renderizarDashboard();
     </script>
 </body>
 </html>

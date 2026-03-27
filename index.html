@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V25</title>
+    <title>POV App - Enterprise CRM V27</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,6 +12,7 @@
         h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
         .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 15px; font-size: 13px; font-weight: 600; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
         .btn-acao:active { opacity: 0.8; }
+        .btn-acao:disabled { background-color: #555; color: #888; cursor: not-allowed; }
         .btn-guardar { background-color: #d4af37; color: #000; display: none; margin-top: 15px;}
         .btn-pdf { background-color: #d4af37; color: #000; margin-top: 20px; } 
         .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
@@ -19,11 +20,9 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        /* CORREÇÃO CIRÚRGICA 1: Arquitetura Overlay (100% blindado contra bloqueios Android/iOS) */
-        .upload-wrapper { position: relative; width: 100%; margin-bottom: 10px; display: block; }
-        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; pointer-events: none; }
+        /* W3C Standard Label CSS - Indestrutível */
+        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
         .upload-lbl.loaded { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; font-weight: bold; }
-        .hidden-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
 
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
@@ -53,7 +52,8 @@
         .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
-        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
+        /* Correção de Rendering PDF: Largura fixa de desktop para evitar deformação no mobile */
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 800px; padding: 40px; box-sizing: border-box; margin: 0; position: absolute; left: -9999px; top: 0; z-index: -1;}
         
         #crm-dashboard { display: block; }
         #app-ui-container { display: none; }
@@ -83,10 +83,8 @@
             <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
             
-            <div class="upload-wrapper">
-                <div class="upload-lbl" id="lblLogo">📷 Logótipo da Agência</div>
-                <input type="file" id="fileLogo" class="hidden-input" accept="image/*">
-            </div>
+            <label class="upload-lbl" id="lblLogo" for="fileLogo">📷 Logótipo da Agência</label>
+            <input type="file" id="fileLogo" accept="image/*" style="display:none;">
         </div>
 
         <div class="card">
@@ -105,28 +103,37 @@
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
             <div style="display: flex; gap: 10px;">
-                <div class="upload-wrapper" style="flex:1;">
-                    <div class="upload-lbl" id="lblCCFrente">📷 CC (Frente)</div>
-                    <input type="file" id="fileCCF" class="hidden-input" accept="image/*">
+                <div style="flex:1;">
+                    <label class="upload-lbl" id="lblCCFrente" for="fileCCF">📷 CC (Frente)</label>
+                    <input type="file" id="fileCCF" accept="image/*" style="display:none;">
                 </div>
-                <div class="upload-wrapper" style="flex:1;">
-                    <div class="upload-lbl" id="lblCCVerso">📷 CC (Verso)</div>
-                    <input type="file" id="fileCCV" class="hidden-input" accept="image/*">
+                <div style="flex:1;">
+                    <label class="upload-lbl" id="lblCCVerso" for="fileCCV">📷 CC (Verso)</label>
+                    <input type="file" id="fileCCV" accept="image/*" style="display:none;">
                 </div>
             </div>
         </div>
 
         <div class="card">
             <h2>📂 4. Documentos Legais</h2>
-            <div class="upload-wrapper"><div class="upload-lbl" id="lblCaderneta">📷 Caderneta Predial</div><input type="file" id="fileCaderneta" class="hidden-input" accept="image/*"></div>
-            <div class="upload-wrapper"><div class="upload-lbl" id="lblRegisto">📷 Registo Predial</div><input type="file" id="fileRegisto" class="hidden-input" accept="image/*"></div>
-            <div class="upload-wrapper"><div class="upload-lbl" id="lblLicenca">📷 Licença de Utilização</div><input type="file" id="fileLicenca" class="hidden-input" accept="image/*"></div>
-            <div class="upload-wrapper"><div class="upload-lbl" id="lblCertificado">📷 Certificado Energético</div><input type="file" id="fileCertificado" class="hidden-input" accept="image/*"></div>
-            <div class="upload-wrapper"><div class="upload-lbl" id="lblOutros">📷 Outros Documentos</div><input type="file" id="fileOutros" class="hidden-input" accept="image/*"></div>
+            <label class="upload-lbl" id="lblCaderneta" for="fileCaderneta">📷 Caderneta Predial</label>
+            <input type="file" id="fileCaderneta" accept="image/*" style="display:none;">
+            
+            <label class="upload-lbl" id="lblRegisto" for="fileRegisto">📷 Registo Predial</label>
+            <input type="file" id="fileRegisto" accept="image/*" style="display:none;">
+            
+            <label class="upload-lbl" id="lblLicenca" for="fileLicenca">📷 Licença de Utilização</label>
+            <input type="file" id="fileLicenca" accept="image/*" style="display:none;">
+            
+            <label class="upload-lbl" id="lblCertificado" for="fileCertificado">📷 Certificado Energético</label>
+            <input type="file" id="fileCertificado" accept="image/*" style="display:none;">
+            
+            <label class="upload-lbl" id="lblOutros" for="fileOutros">📷 Outros Documentos</label>
+            <input type="file" id="fileOutros" accept="image/*" style="display:none;">
         </div>
 
         <div class="card">
-            <h2>📷 5. Motor de Vistoria (Dual-Camera)</h2>
+            <h2>📷 5. Motor de Vistoria (Híbrido)</h2>
             <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
                 <option value="Exterior / Fachada">Exterior / Fachada</option>
                 <option value="Hall de Entrada">Hall de Entrada</option>
@@ -141,10 +148,8 @@
 
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px;">GRELHA ÓTICA</button>
-                <div id="wrapperCameraNativa" class="upload-wrapper" style="margin-bottom:0; flex:1;">
-                    <div class="btn-acao" style="margin-bottom:0; width:100%; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding: 15px; box-sizing: border-box; text-align: center; pointer-events: none;">CÂMARA NATIVA</div>
-                    <input type="file" id="inputCameraNativa" class="hidden-input" accept="image/*" capture="environment">
-                </div>
+                <label for="inputCameraNativa" id="btnCameraNativa" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37; display: flex; align-items: center; justify-content: center; text-align: center;">CÂMARA / GALERIA</label>
+                <input type="file" id="inputCameraNativa" accept="image/*" style="display:none;">
             </div>
             
             <div id="moduloCamera">
@@ -191,7 +196,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v25')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v27')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -208,7 +213,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v25', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v27', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -269,7 +274,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v25'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v27'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -281,6 +286,7 @@
 
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
+        // V27: Compressão agressiva para 800px para impedir Crash de RAM no gerador de PDF
         function setupDocUpload(inputId, lblId, docKey) {
             const input = document.getElementById(inputId); const lbl = document.getElementById(lblId);
             input.addEventListener('change', function(e) {
@@ -289,7 +295,8 @@
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        const canvas = document.createElement('canvas'); let maxW = docKey === 'logo' ? 400 : 800; 
+                        const canvas = document.createElement('canvas'); 
+                        let maxW = docKey === 'logo' ? 400 : 800; // Proteção RAM Mobile
                         let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
@@ -310,7 +317,7 @@
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('videoElement').srcObject = streamAtivo;
                 document.getElementById('moduloCamera').style.display = "block";
-                document.getElementById('btnLigarLente').style.display = "none"; document.getElementById('wrapperCameraNativa').style.display = "none";
+                document.getElementById('btnLigarLente').style.display = "none"; document.getElementById('btnCameraNativa').style.display = "none";
                 document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none";
                 document.getElementById('painelTags').style.display = "none"; document.getElementById('guardarBtn').style.display = "none";
                 document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
@@ -320,10 +327,10 @@
         document.getElementById('btnDisparoLente').addEventListener('click', () => {
             const video = document.getElementById('videoElement');
             let w = video.videoWidth, h = video.videoHeight;
-            if (w > 1024) { h = h * (1024 / w); w = 1024; }
+            if (w > 800) { h = h * (800 / w); w = 800; } // V27: Bloqueio agressivo nos 800px
             const cvs = document.getElementById('canvasOculto'); cvs.width = w; cvs.height = h;
             cvs.getContext('2d').drawImage(video, 0, 0, w, h);
-            concluirCaptura(cvs.toDataURL('image/jpeg', 0.8));
+            concluirCaptura(cvs.toDataURL('image/jpeg', 0.7));
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
             document.getElementById('moduloCamera').style.display = "none";
         });
@@ -336,9 +343,9 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas'); let w = img.width, h = img.height;
-                    if (w > 1200) { h = Math.round(h * 1200 / w); w = 1200; }
+                    if (w > 800) { h = Math.round(h * 800 / w); w = 800; } // V27: Bloqueio agressivo nos 800px para o PDF não colapsar
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    concluirCaptura(canvas.toDataURL('image/jpeg', 0.8));
+                    concluirCaptura(canvas.toDataURL('image/jpeg', 0.7));
                 }
                 img.src = event.target.result;
             }
@@ -347,7 +354,7 @@
 
         function concluirCaptura(base64Image) {
             tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
-            document.getElementById('btnLigarLente').style.display = "block"; document.getElementById('wrapperCameraNativa').style.display = "block";
+            document.getElementById('btnLigarLente').style.display = "block"; document.getElementById('btnCameraNativa').style.display = "flex";
             document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
             document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; document.getElementById('guardarBtn').style.display = "block";
@@ -421,13 +428,18 @@
         document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
+        // V27: Motor de PDF Seguro com Tratamento de Erro e Bloqueio de UI
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
-            let nomeFicheiroFinal = document.getElementById('inputNomePdf').value.trim();
+            const btn = this;
+            btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)";
+            btn.disabled = true;
+
+            let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
             if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
             if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
 
-            uiEditor.style.display = 'none'; document.body.style.backgroundColor = '#ffffff';
-            const pdfZone = document.getElementById('pdf-render-zone'); pdfZone.style.display = 'block';
+            const pdfZone = document.getElementById('pdf-render-zone'); 
+            pdfZone.style.display = 'block';
 
             let htmlString = `
                 <div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
@@ -488,12 +500,25 @@
             let fotosAnexosHTML = ""; const dictAnexos = { 'ccF': 'Cartão de Cidadão (Frente)', 'ccV': 'Cartão de Cidadão (Verso)', 'caderneta': 'Caderneta Predial', 'registo': 'Registo Predial', 'licenca': 'Licença de Utilização', 'certificado': 'Certificado Energético', 'outros': 'Outros Documentos' };
             for (const [key, label] of Object.entries(dictAnexos)) { if(docsApp[key]) { fotosAnexosHTML += `<div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;"><div style="font-weight: 700; font-size: 12px; color: #111; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 5px; display: inline-block;">📋 Anexo: ${label}</div><img src="${docsApp[key]}" style="max-width: 100%; max-height: 600px; display: block; margin: 0 auto;"></div>`; } }
             if(fotosAnexosHTML !== "") { htmlString += `<div style="page-break-before: always; padding-top: 20px;"></div><div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Anexos Documentais Oficiais</div>${fotosAnexosHTML}`; }
-            htmlString += `</div>`; pdfZone.innerHTML = htmlString; window.scrollTo(0, 0);
+            htmlString += `</div>`; 
+            pdfZone.innerHTML = htmlString; 
+            window.scrollTo(0, 0);
 
             setTimeout(() => {
-                const opt = { margin: [15, 15, 15, 15], filename: nomeFicheiroFinal, image: { type: 'jpeg', quality: 0.90 }, html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(pdfZone).save().then(() => { pdfZone.style.display = 'none'; pdfZone.innerHTML = ''; document.body.style.backgroundColor = '#050505'; uiEditor.style.display = 'block'; });
-            }, 1500); 
+                // V27: Escala reduzida para 1.5 para proteger Tablets e Mobile de crashes
+                const opt = { margin: [15, 15, 15, 15], filename: nomeFicheiroFinal, image: { type: 'jpeg', quality: 0.90 }, html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                
+                html2pdf().set(opt).from(pdfZone).save().then(() => { 
+                    pdfZone.style.display = 'none'; 
+                    pdfZone.innerHTML = ''; 
+                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)";
+                    btn.disabled = false;
+                }).catch(err => {
+                    alert("Aviso: A memória gráfica do dispositivo falhou a renderização. Tente formatar os dados ou reduzir o número de fotos.");
+                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)";
+                    btn.disabled = false;
+                });
+            }, 1000); 
         });
 
         renderizarDashboard();

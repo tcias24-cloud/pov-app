@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V29 (Gold Master)</title>
+    <title>POV App - Enterprise CRM V30 (Ultimate)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -20,9 +20,14 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        /* ROLLBACK V20: O DNA antigo e seguro */
-        .upload-lbl { background: #1a1a1a; border: 1px dashed #444; color: #aaa; padding: 12px; text-align: center; border-radius: 6px; display: block; cursor: pointer; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .upload-lbl.loaded { background: rgba(212, 175, 55, 0.1); border-color: #d4af37; color: #d4af37; font-weight: bold; }
+        /* V30: ARQUITETURA DE DUPLO BOTÃO (MDM OVERRIDE) */
+        .upload-wrapper { background: #1a1a1a; border: 1px dashed #444; padding: 12px; border-radius: 6px; margin-bottom: 10px; text-align: center; transition: 0.3s; }
+        .upload-wrapper.loaded { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
+        .lbl-doc-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; transition: 0.3s;}
+        .lbl-doc-title.loaded { color: #d4af37; }
+        .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
+        .btn-micro { background: #222; color: #d4af37; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 600; display: block; margin: 0; }
+        .btn-micro:hover, .btn-micro:active { border-color: #d4af37; background: #333; }
         input[type="file"] { display: none; }
 
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
@@ -53,7 +58,6 @@
         .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
-        /* ROLLBACK V20: PDF Render Zone livre e funcional */
         #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
         
         #crm-dashboard { display: block; }
@@ -71,7 +75,7 @@
         <div class="card">
             <h2>🗂️ POV CRM - Gestor de Clientes</h2>
             <div id="lista-crm" style="margin-bottom: 20px;"></div>
-            <button id="btnNovaPasta" class="btn-acao btn-pdf">➕ NOVA ANGARIAÇÃO (CRIAR PASTA)</button>
+            <button id="btnNovaPasta" class="btn-acao btn-pdf">➕ NOVA ANGARIAÇÃO</button>
             <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #555; border: 1px solid #333; margin-top: 20px; font-size: 10px;">Formatar Base de Dados</button>
         </div>
     </div>
@@ -84,11 +88,13 @@
             <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
             
-            <label class="upload-lbl" id="lblLogo">
-                <span class="lbl-txt">📷 Logótipo da Agência</span>
-                <!-- O capture devolve a câmara às Samsungs cegas -->
-                <input type="file" id="fileLogo" accept="image/*" capture="environment">
-            </label>
+            <div class="upload-wrapper" id="wrap_logo">
+                <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileLogo_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileLogo_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
         </div>
 
         <div class="card">
@@ -106,33 +112,71 @@
             <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome Completo"></div>
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
+            
             <div style="display: flex; gap: 10px;">
-                <div style="flex:1;">
-                    <label class="upload-lbl" id="lblCCFrente">
-                        <span class="lbl-txt">📷 CC (Frente)</span>
-                        <input type="file" id="fileCCF" accept="image/*" capture="environment">
-                    </label>
+                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccF">📄 CC (Frente)</span>
+                    <div class="dual-btn-container">
+                        <label class="btn-micro">📂 Gal<input type="file" id="fileCCF_gal" accept="image/*"></label>
+                        <label class="btn-micro">📸 Câm<input type="file" id="fileCCF_cam" accept="image/*" capture="environment"></label>
+                    </div>
                 </div>
-                <div style="flex:1;">
-                    <label class="upload-lbl" id="lblCCVerso">
-                        <span class="lbl-txt">📷 CC (Verso)</span>
-                        <input type="file" id="fileCCV" accept="image/*" capture="environment">
-                    </label>
+                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccV">📄 CC (Verso)</span>
+                    <div class="dual-btn-container">
+                        <label class="btn-micro">📂 Gal<input type="file" id="fileCCV_gal" accept="image/*"></label>
+                        <label class="btn-micro">📸 Câm<input type="file" id="fileCCV_cam" accept="image/*" capture="environment"></label>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="card">
             <h2>📂 4. Documentos Legais</h2>
-            <label class="upload-lbl" id="lblCaderneta"><span class="lbl-txt">📷 Caderneta Predial</span><input type="file" id="fileCaderneta" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblRegisto"><span class="lbl-txt">📷 Registo Predial</span><input type="file" id="fileRegisto" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblLicenca"><span class="lbl-txt">📷 Licença de Utilização</span><input type="file" id="fileLicenca" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblCertificado"><span class="lbl-txt">📷 Certificado Energético</span><input type="file" id="fileCertificado" accept="image/*" capture="environment"></label>
-            <label class="upload-lbl" id="lblOutros"><span class="lbl-txt">📷 Outros Documentos</span><input type="file" id="fileOutros" accept="image/*" capture="environment"></label>
+            
+            <div class="upload-wrapper" id="wrap_caderneta">
+                <span class="lbl-doc-title" id="lblText_caderneta">📄 Caderneta Predial</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileCaderneta_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
+            
+            <div class="upload-wrapper" id="wrap_registo">
+                <span class="lbl-doc-title" id="lblText_registo">📄 Registo Predial</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileRegisto_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileRegisto_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_licenca">
+                <span class="lbl-doc-title" id="lblText_licenca">📄 Licença de Utilização</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileLicenca_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileLicenca_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_certificado">
+                <span class="lbl-doc-title" id="lblText_certificado">📄 Certificado Energético</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileCertificado_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileCertificado_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_outros">
+                <span class="lbl-doc-title" id="lblText_outros">📄 Outros Documentos</span>
+                <div class="dual-btn-container">
+                    <label class="btn-micro">📂 Galeria<input type="file" id="fileOutros_gal" accept="image/*"></label>
+                    <label class="btn-micro">📸 Câmara<input type="file" id="fileOutros_cam" accept="image/*" capture="environment"></label>
+                </div>
+            </div>
         </div>
 
         <div class="card">
-            <h2>📷 5. Motor de Vistoria (Híbrido)</h2>
+            <h2>📷 5. Motor de Vistoria</h2>
             <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
                 <option value="Exterior / Fachada">Exterior / Fachada</option>
                 <option value="Hall de Entrada">Hall de Entrada</option>
@@ -145,11 +189,15 @@
                 <option value="Cave / Arrumos">Cave / Arrumos</option>
             </select>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px;">GRELHA ÓTICA</button>
-                <label id="btnCameraNativa" class="btn-acao" style="margin-bottom:0; flex:1; font-size:11px; background:#222; color:#d4af37; border: 1px solid #d4af37; text-align: center; display: block; padding-top:16px;">
-                    <span class="lbl-txt">CÂMARA NATIVA</span>
-                    <input type="file" id="inputCameraNativa" accept="image/*" capture="environment">
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; padding:10px;">GRELHA</button>
+                <label class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">
+                    📸 CÂMARA
+                    <input type="file" id="inputVistoria_cam" accept="image/*" capture="environment">
+                </label>
+                <label class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">
+                    📂 GALERIA
+                    <input type="file" id="inputVistoria_gal" accept="image/*">
                 </label>
             </div>
             
@@ -197,7 +245,8 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v29')) || [];
+        // MEMÓRIA V30 - ARRANCAR A LIMPO
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v30')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -214,7 +263,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v29', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v30', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -235,11 +284,16 @@
             });
         }
 
-        const docLabels = {
-            'logo': 'lblLogo', 'ccF': 'lblCCFrente', 'ccV': 'lblCCVerso',
-            'caderneta': 'lblCaderneta', 'registo': 'lblRegisto', 'licenca': 'lblLicenca',
-            'certificado': 'lblCertificado', 'outros': 'lblOutros'
-        };
+        const docKeys = [
+            { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
+            { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'CC (Frente)' },
+            { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'CC (Verso)' },
+            { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
+            { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
+            { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
+            { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
+            { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
+        ];
 
         function abrirPasta(index) {
             activeIndex = index;
@@ -248,18 +302,17 @@
             
             mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
             
-            Object.keys(docLabels).forEach(k => {
-                const lbl = document.getElementById(docLabels[k]);
-                if(lbl) {
-                    const txt = lbl.querySelector('.lbl-txt');
-                    if(docsApp[k]) { 
-                        lbl.classList.add('loaded'); 
-                        if(txt && !txt.innerText.startsWith("✅")) txt.innerText = "✅ " + txt.innerText.replace('📷 ', ''); 
-                    }
-                    else { 
-                        lbl.classList.remove('loaded'); 
-                        if(txt) txt.innerText = txt.innerText.replace('✅ ', '📷 '); 
-                    }
+            docKeys.forEach(d => {
+                const txtEl = document.getElementById(d.idText);
+                const wrapEl = document.getElementById(d.idWrap);
+                if(docsApp[d.key]) {
+                    txtEl.innerText = "✅ " + d.txt;
+                    txtEl.classList.add('loaded');
+                    wrapEl.classList.add('loaded');
+                } else {
+                    txtEl.innerText = "📄 " + d.txt;
+                    txtEl.classList.remove('loaded');
+                    wrapEl.classList.remove('loaded');
                 }
             });
 
@@ -282,7 +335,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v29'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v30'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -294,39 +347,48 @@
 
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
-        function setupDocUpload(inputId, lblId, docKey) {
-            const input = document.getElementById(inputId); const lbl = document.getElementById(lblId);
-            const txt = lbl.querySelector('.lbl-txt');
-            input.addEventListener('change', function(e) {
+        // V30: O MOTOR DUAL (Câmara e Galeria separadas e infalíveis)
+        function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
+            const handleFile = function(e) {
                 const file = e.target.files[0]; if(!file) return;
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas'); 
-                        let maxW = docKey === 'logo' ? 400 : 800;
+                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão Anti-Crash
                         let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
                         guardarNoCRM();
-                        lbl.classList.add('loaded'); 
-                        if(txt && !txt.innerText.startsWith("✅")) txt.innerText = "✅ " + txt.innerText.replace('📷 ', '');
+                        document.getElementById(lblTextId).innerText = "✅ " + originalText;
+                        document.getElementById(lblTextId).classList.add('loaded');
+                        document.getElementById(wrapId).classList.add('loaded');
                     }
                     img.src = event.target.result;
                 }
                 reader.readAsDataURL(file);
-            });
+            };
+            document.getElementById(idGal).addEventListener('change', handleFile);
+            document.getElementById(idCam).addEventListener('change', handleFile);
         }
-        setupDocUpload('fileLogo', 'lblLogo', 'logo'); setupDocUpload('fileCCF', 'lblCCFrente', 'ccF'); setupDocUpload('fileCCV', 'lblCCVerso', 'ccV');
-        setupDocUpload('fileCaderneta', 'lblCaderneta', 'caderneta'); setupDocUpload('fileRegisto', 'lblRegisto', 'registo'); setupDocUpload('fileLicenca', 'lblLicenca', 'licenca');
-        setupDocUpload('fileCertificado', 'lblCertificado', 'certificado'); setupDocUpload('fileOutros', 'lblOutros', 'outros');
 
+        setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo da Agência');
+        setupDualDocUpload('fileCCF_gal', 'fileCCF_cam', 'lblText_ccF', 'wrap_ccF', 'ccF', 'CC (Frente)');
+        setupDualDocUpload('fileCCV_gal', 'fileCCV_cam', 'lblText_ccV', 'wrap_ccV', 'ccV', 'CC (Verso)');
+        setupDualDocUpload('fileCaderneta_gal', 'fileCaderneta_cam', 'lblText_caderneta', 'wrap_caderneta', 'caderneta', 'Caderneta Predial');
+        setupDualDocUpload('fileRegisto_gal', 'fileRegisto_cam', 'lblText_registo', 'wrap_registo', 'registo', 'Registo Predial');
+        setupDualDocUpload('fileLicenca_gal', 'fileLicenca_cam', 'lblText_licenca', 'wrap_licenca', 'licenca', 'Licença de Utilização');
+        setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
+        setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
+
+        // Secção 5: Vistoria
         document.getElementById('btnLigarLente').addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 document.getElementById('videoElement').srcObject = streamAtivo;
                 document.getElementById('moduloCamera').style.display = "block";
-                document.getElementById('btnLigarLente').style.display = "none"; document.getElementById('btnCameraNativa').style.display = "none";
+                document.getElementById('btnLigarLente').parentElement.style.display = "none"; 
                 document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none";
                 document.getElementById('painelTags').style.display = "none"; document.getElementById('guardarBtn').style.display = "none";
                 document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
@@ -339,12 +401,12 @@
             if (w > 800) { h = h * (800 / w); w = 800; } 
             const cvs = document.getElementById('canvasOculto'); cvs.width = w; cvs.height = h;
             cvs.getContext('2d').drawImage(video, 0, 0, w, h);
-            concluirCaptura(cvs.toDataURL('image/jpeg', 0.7));
+            concluirCapturaVistoria(cvs.toDataURL('image/jpeg', 0.7));
             if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
             document.getElementById('moduloCamera').style.display = "none";
         });
 
-        document.getElementById('inputCameraNativa').addEventListener('change', function(e) {
+        const handleVistoriaNativa = function(e) {
             const file = e.target.files[0]; if(!file) return;
             document.getElementById('micStatus').innerText = "A processar ótica...";
             const reader = new FileReader();
@@ -354,16 +416,19 @@
                     const canvas = document.createElement('canvas'); let w = img.width, h = img.height;
                     if (w > 800) { h = Math.round(h * 800 / w); w = 800; } 
                     canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    concluirCaptura(canvas.toDataURL('image/jpeg', 0.7));
+                    concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.7));
                 }
                 img.src = event.target.result;
             }
             reader.readAsDataURL(file);
-        });
+        };
 
-        function concluirCaptura(base64Image) {
+        document.getElementById('inputVistoria_cam').addEventListener('change', handleVistoriaNativa);
+        document.getElementById('inputVistoria_gal').addEventListener('change', handleVistoriaNativa);
+
+        function concluirCapturaVistoria(base64Image) {
             tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
-            document.getElementById('btnLigarLente').style.display = "block"; document.getElementById('btnCameraNativa').style.display = "block";
+            document.getElementById('btnLigarLente').parentElement.style.display = "flex"; 
             document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
             document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
             document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; document.getElementById('guardarBtn').style.display = "block";
@@ -511,7 +576,6 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                // V29: Renderizador completamente livre, sem CSS a encravar e escala otimizada para tablets.
                 const opt = { 
                     margin: [15, 15, 15, 15], 
                     filename: nomeFicheiroFinal, 

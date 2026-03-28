@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V30 (Ultimate)</title>
+    <title>POV App - Enterprise CRM V31 (Master)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -20,15 +20,16 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        /* V30: ARQUITETURA DE DUPLO BOTÃO (MDM OVERRIDE) */
+        /* V31: ARQUITETURA BLINDADA (Inputs Escondidos com Opacidade, NÃO com display:none) */
+        .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
+        
         .upload-wrapper { background: #1a1a1a; border: 1px dashed #444; padding: 12px; border-radius: 6px; margin-bottom: 10px; text-align: center; transition: 0.3s; }
         .upload-wrapper.loaded { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
         .lbl-doc-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; transition: 0.3s;}
         .lbl-doc-title.loaded { color: #d4af37; }
         .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
-        .btn-micro { background: #222; color: #d4af37; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 600; display: block; margin: 0; }
+        .btn-micro { background: #222; color: #d4af37; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 600; display: block; margin: 0; text-align: center;}
         .btn-micro:hover, .btn-micro:active { border-color: #d4af37; background: #333; }
-        input[type="file"] { display: none; }
 
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
@@ -56,7 +57,6 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
         
@@ -91,8 +91,11 @@
             <div class="upload-wrapper" id="wrap_logo">
                 <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileLogo_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileLogo_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLogo_gal" class="hidden-input">
+                    
+                    <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
         </div>
@@ -117,15 +120,19 @@
                 <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
                     <span class="lbl-doc-title" id="lblText_ccF">📄 CC (Frente)</span>
                     <div class="dual-btn-container">
-                        <label class="btn-micro">📂 Gal<input type="file" id="fileCCF_gal" accept="image/*"></label>
-                        <label class="btn-micro">📸 Câm<input type="file" id="fileCCF_cam" accept="image/*" capture="environment"></label>
+                        <label for="fileCCF_gal" class="btn-micro">📂 Fich</label>
+                        <input type="file" id="fileCCF_gal" class="hidden-input">
+                        <label for="fileCCF_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input">
                     </div>
                 </div>
                 <div class="upload-wrapper" id="wrap_ccV" style="flex:1;">
                     <span class="lbl-doc-title" id="lblText_ccV">📄 CC (Verso)</span>
                     <div class="dual-btn-container">
-                        <label class="btn-micro">📂 Gal<input type="file" id="fileCCV_gal" accept="image/*"></label>
-                        <label class="btn-micro">📸 Câm<input type="file" id="fileCCV_cam" accept="image/*" capture="environment"></label>
+                        <label for="fileCCV_gal" class="btn-micro">📂 Fich</label>
+                        <input type="file" id="fileCCV_gal" class="hidden-input">
+                        <label for="fileCCV_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input">
                     </div>
                 </div>
             </div>
@@ -137,40 +144,50 @@
             <div class="upload-wrapper" id="wrap_caderneta">
                 <span class="lbl-doc-title" id="lblText_caderneta">📄 Caderneta Predial</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileCaderneta_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileCaderneta_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCaderneta_gal" class="hidden-input">
+                    <label for="fileCaderneta_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
             
             <div class="upload-wrapper" id="wrap_registo">
                 <span class="lbl-doc-title" id="lblText_registo">📄 Registo Predial</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileRegisto_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileRegisto_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileRegisto_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileRegisto_gal" class="hidden-input">
+                    <label for="fileRegisto_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
 
             <div class="upload-wrapper" id="wrap_licenca">
                 <span class="lbl-doc-title" id="lblText_licenca">📄 Licença de Utilização</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileLicenca_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileLicenca_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileLicenca_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLicenca_gal" class="hidden-input">
+                    <label for="fileLicenca_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
 
             <div class="upload-wrapper" id="wrap_certificado">
                 <span class="lbl-doc-title" id="lblText_certificado">📄 Certificado Energético</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileCertificado_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileCertificado_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileCertificado_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCertificado_gal" class="hidden-input">
+                    <label for="fileCertificado_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
 
             <div class="upload-wrapper" id="wrap_outros">
                 <span class="lbl-doc-title" id="lblText_outros">📄 Outros Documentos</span>
                 <div class="dual-btn-container">
-                    <label class="btn-micro">📂 Galeria<input type="file" id="fileOutros_gal" accept="image/*"></label>
-                    <label class="btn-micro">📸 Câmara<input type="file" id="fileOutros_cam" accept="image/*" capture="environment"></label>
+                    <label for="fileOutros_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileOutros_gal" class="hidden-input">
+                    <label for="fileOutros_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
         </div>
@@ -191,14 +208,12 @@
 
             <div style="display: flex; gap: 5px; margin-bottom: 15px;">
                 <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; padding:10px;">GRELHA</button>
-                <label class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">
-                    📸 CÂMARA
-                    <input type="file" id="inputVistoria_cam" accept="image/*" capture="environment">
-                </label>
-                <label class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">
-                    📂 GALERIA
-                    <input type="file" id="inputVistoria_gal" accept="image/*">
-                </label>
+                
+                <label for="inputVistoria_cam" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📸 CÂMARA</label>
+                <input type="file" id="inputVistoria_cam" accept="image/*" capture="environment" class="hidden-input">
+                
+                <label for="inputVistoria_gal" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📂 FICHEIROS</label>
+                <input type="file" id="inputVistoria_gal" class="hidden-input">
             </div>
             
             <div id="moduloCamera">
@@ -245,8 +260,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MEMÓRIA V30 - ARRANCAR A LIMPO
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v30')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v31')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -263,7 +277,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v30', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v31', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -335,7 +349,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v30'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v31'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -347,16 +361,24 @@
 
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
-        // V30: O MOTOR DUAL (Câmara e Galeria separadas e infalíveis)
+        // V31: LÓGICA DE DUAL UPLOAD (Com Validador de Imagem)
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
             const handleFile = function(e) {
-                const file = e.target.files[0]; if(!file) return;
+                const file = e.target.files; if(!file) return;
+                
+                // Validador Anti-PDF/Anti-Word
+                if (!file.type.startsWith('image/')) {
+                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF. Por favor, escolha uma imagem.");
+                    e.target.value = "";
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas'); 
-                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão Anti-Crash
+                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão V27
                         let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
@@ -407,7 +429,14 @@
         });
 
         const handleVistoriaNativa = function(e) {
-            const file = e.target.files[0]; if(!file) return;
+            const file = e.target.files; if(!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert("⚠️ Apenas fotografias/imagens são aceites.");
+                e.target.value = "";
+                return;
+            }
+
             document.getElementById('micStatus').innerText = "A processar ótica...";
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -477,7 +506,7 @@
         let assinando = false; let temAssinatura = false; 
         function inicializarCanvas() { const r = canvasAssinatura.parentElement.getBoundingClientRect(); canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; }
         inicializarCanvas();
-        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
         canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
         canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
         canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
@@ -493,7 +522,7 @@
             const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
             rec.onstart = () => { btn.classList.add('recording'); };
             rec.onresult = (e) => { 
-                let tEx = target.value.trim(); let novo = e.results[e.resultIndex][0].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                let tEx = target.value.trim(); let novo = e.results[e.resultIndex].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
                 if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
                 if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
             };
@@ -577,7 +606,7 @@
 
             setTimeout(() => {
                 const opt = { 
-                    margin: [15, 15, 15, 15], 
+                    margin:, 
                     filename: nomeFicheiroFinal, 
                     image: { type: 'jpeg', quality: 0.90 }, 
                     html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 

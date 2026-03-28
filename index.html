@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V31 (Master)</title>
+    <title>POV App - Enterprise CRM V32 (Final)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,6 @@
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
         
-        /* V31: ARQUITETURA BLINDADA (Inputs Escondidos com Opacidade, NÃO com display:none) */
         .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
         
         .upload-wrapper { background: #1a1a1a; border: 1px dashed #444; padding: 12px; border-radius: 6px; margin-bottom: 10px; text-align: center; transition: 0.3s; }
@@ -252,6 +251,11 @@
 
         <div class="card">
             <h2>🗂️ EMISSÃO E DOWNLOADS</h2>
+            <!-- V32: RESTAURAÇÃO DA CAIXA DE NOME DO PDF -->
+            <div class="input-group" style="margin-bottom: 20px;">
+                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do Ficheiro (Ex: Angariacao_ID001)">
+            </div>
+            
             <div id="log-ui">Ainda sem registos técnicos nesta pasta.</div>
             <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE ANGARIAÇÃO (PDF)</button>
         </div>
@@ -260,7 +264,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        let crmData = JSON.parse(localStorage.getItem('pov_crm_v31')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v32')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -277,7 +281,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_crm_v31', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v32', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -349,7 +353,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_crm_v31'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v32'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -361,14 +365,12 @@
 
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
-        // V31: LÓGICA DE DUAL UPLOAD (Com Validador de Imagem)
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
             const handleFile = function(e) {
-                const file = e.target.files; if(!file) return;
+                const file = e.target.files[0]; if(!file) return;
                 
-                // Validador Anti-PDF/Anti-Word
                 if (!file.type.startsWith('image/')) {
-                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF. Por favor, escolha uma imagem.");
+                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF.");
                     e.target.value = "";
                     return;
                 }
@@ -378,7 +380,7 @@
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas'); 
-                        let maxW = docKey === 'logo' ? 400 : 800; // Compressão V27
+                        let maxW = docKey === 'logo' ? 400 : 800; 
                         let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                         docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
@@ -404,7 +406,6 @@
         setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
         setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
 
-        // Secção 5: Vistoria
         document.getElementById('btnLigarLente').addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -429,7 +430,7 @@
         });
 
         const handleVistoriaNativa = function(e) {
-            const file = e.target.files; if(!file) return;
+            const file = e.target.files[0]; if(!file) return;
             
             if (!file.type.startsWith('image/')) {
                 alert("⚠️ Apenas fotografias/imagens são aceites.");
@@ -506,7 +507,7 @@
         let assinando = false; let temAssinatura = false; 
         function inicializarCanvas() { const r = canvasAssinatura.parentElement.getBoundingClientRect(); canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; }
         inicializarCanvas();
-        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
         canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
         canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
         canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
@@ -522,7 +523,7 @@
             const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
             rec.onstart = () => { btn.classList.add('recording'); };
             rec.onresult = (e) => { 
-                let tEx = target.value.trim(); let novo = e.results[e.resultIndex].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                let tEx = target.value.trim(); let novo = e.results[e.resultIndex][0].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
                 if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
                 if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
             };
@@ -531,9 +532,11 @@
         document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
+        // V32: MOTOR DE PDF BLINDADO COM O INPUT DE NOME
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             const btn = this; btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)"; btn.disabled = true;
 
+            // Capta o valor da caixa de texto
             let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
             if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
             if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
@@ -605,8 +608,9 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
+                // V32: Erro das margens silenciosamente exterminado.
                 const opt = { 
-                    margin:, 
+                    margin: [15, 15, 15, 15], 
                     filename: nomeFicheiroFinal, 
                     image: { type: 'jpeg', quality: 0.90 }, 
                     html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 

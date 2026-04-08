@@ -19,9 +19,7 @@
         .input-meta, .select-divisao { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 14px; font-family: inherit; }
         .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
         .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
-        
         .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
-        
         .upload-wrapper { background: #1a1a1a; border: 1px dashed #444; padding: 12px; border-radius: 6px; margin-bottom: 10px; text-align: center; transition: 0.3s; }
         .upload-wrapper.loaded { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
         .lbl-doc-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; transition: 0.3s;}
@@ -29,7 +27,6 @@
         .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
         .btn-micro { background: #222; color: #d4af37; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 600; display: block; margin: 0; text-align: center;}
         .btn-micro:hover, .btn-micro:active { border-color: #d4af37; background: #333; }
-
         #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
         #videoElement { width: 100%; display: block; object-fit: cover; }
         .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -56,9 +53,7 @@
         .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
         .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
         .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
-        
         #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
-        
         #crm-dashboard { display: block; }
         #app-ui-container { display: none; }
         .crm-item { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border-left: 4px solid #d4af37; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
@@ -92,13 +87,11 @@
             <h2>🏢 1. Identificação da Imobiliária</h2>
             <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
             <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
-            
             <div class="upload-wrapper" id="wrap_logo">
                 <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
                 <div class="dual-btn-container">
                     <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
                     <input type="file" id="fileLogo_gal" class="hidden-input">
-                    
                     <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
                     <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
@@ -120,7 +113,6 @@
             <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome Completo"></div>
             <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
             <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
-            
             <div style="display: flex; gap: 10px;">
                 <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
                     <span class="lbl-doc-title" id="lblText_ccF">📄 CC (Frente)</span>
@@ -145,7 +137,6 @@
 
         <div class="card">
             <h2>📂 4. Documentos Legais</h2>
-            
             <div class="upload-wrapper" id="wrap_caderneta">
                 <span class="lbl-doc-title" id="lblText_caderneta">📄 Caderneta Predial</span>
                 <div class="dual-btn-container">
@@ -155,7 +146,6 @@
                     <input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
-            
             <div class="upload-wrapper" id="wrap_registo">
                 <span class="lbl-doc-title" id="lblText_registo">📄 Registo Predial</span>
                 <div class="dual-btn-container">
@@ -165,7 +155,6 @@
                     <input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
-
             <div class="upload-wrapper" id="wrap_licenca">
                 <span class="lbl-doc-title" id="lblText_licenca">📄 Licença de Utilização</span>
                 <div class="dual-btn-container">
@@ -175,7 +164,6 @@
                     <input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
-
             <div class="upload-wrapper" id="wrap_certificado">
                 <span class="lbl-doc-title" id="lblText_certificado">📄 Certificado Energético</span>
                 <div class="dual-btn-container">
@@ -185,7 +173,6 @@
                     <input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
             </div>
-
             <div class="upload-wrapper" id="wrap_outros">
                 <span class="lbl-doc-title" id="lblText_outros">📄 Outros Documentos</span>
                 <div class="dual-btn-container">
@@ -210,34 +197,27 @@
                 <option value="Jardim / Piscina">Jardim / Piscina</option>
                 <option value="Cave / Arrumos">Cave / Arrumos</option>
             </select>
-
             <div style="display: flex; gap: 5px; margin-bottom: 15px;">
                 <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; padding:10px;">GRELHA</button>
-                
                 <label for="inputVistoria_cam" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📸 CÂMARA</label>
                 <input type="file" id="inputVistoria_cam" accept="image/*" capture="environment" class="hidden-input">
-                
                 <label for="inputVistoria_gal" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📂 FICHEIROS</label>
                 <input type="file" id="inputVistoria_gal" class="hidden-input">
             </div>
-            
             <div id="moduloCamera">
                 <video id="videoElement" autoplay playsinline></video>
                 <div class="grid-overlay"><div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div><div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div></div>
                 <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
                 <canvas id="canvasOculto" style="display:none;"></canvas>
             </div>
-            
             <div class="status" id="micStatus">Pronto para operar.</div>
             <img id="previewImagem" src="" alt="Preview">
-            
             <div class="painel-ditado" id="painelDitado">
                 <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
                 <div style="width: 100%;">
                     <textarea id="visorNota" class="visor-texto" placeholder="Dite a descrição do espaço..."></textarea>
                 </div>
             </div>
-            
             <div class="painel-tags" id="painelTags">
                 <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
                 <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos Premium')">+ Premium</button>
@@ -245,7 +225,6 @@
                 <button class="smart-tag" onclick="adicionarTag('🌳 Zona Tranquila')">+ Paz</button>
                 <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas')">+ Áreas</button>
             </div>
-            
             <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR ESPAÇO E GPS</button>
         </div>
 
@@ -260,12 +239,10 @@
             <div class="input-group" style="margin-bottom: 20px;">
                 <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do Ficheiro (Ex: Angariacao_ID001)">
             </div>
-            
             <div id="log-ui">Ainda sem registos técnicos nesta pasta.</div>
             <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE ANGARIAÇÃO (PDF)</button>
         </div>
     </div>
-
     <div id="pdf-render-zone"></div>
 
     <script>
@@ -293,7 +270,6 @@
         function renderizarDashboard() {
             listaCRM.innerHTML = "";
             if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:12px;'>Sem pastas ativas. Crie uma nova angariação.</p>"; return; }
-            
             crmData.forEach((pasta, index) => {
                 const numFotos = pasta.fotos ? pasta.fotos.length : 0;
                 listaCRM.innerHTML += `
@@ -322,28 +298,20 @@
             activeIndex = index;
             const pasta = crmData[index];
             metadados = pasta.meta || {}; docsApp = pasta.docs || {}; memoriaApp = pasta.fotos || []; assinaturaSalvaBase64 = pasta.assinatura || "";
-            
             mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
-            
             docKeys.forEach(d => {
                 const txtEl = document.getElementById(d.idText);
                 const wrapEl = document.getElementById(d.idWrap);
                 if(docsApp[d.key]) {
-                    txtEl.innerText = "✅ " + d.txt;
-                    txtEl.classList.add('loaded');
-                    wrapEl.classList.add('loaded');
+                    txtEl.innerText = "✅ " + d.txt; txtEl.classList.add('loaded'); wrapEl.classList.add('loaded');
                 } else {
-                    txtEl.innerText = "📄 " + d.txt;
-                    txtEl.classList.remove('loaded');
-                    wrapEl.classList.remove('loaded');
+                    txtEl.innerText = "📄 " + d.txt; txtEl.classList.remove('loaded'); wrapEl.classList.remove('loaded');
                 }
             });
-
             renderizarInterface();
             ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height);
             if(assinaturaSalvaBase64 !== "") { const img = new Image(); img.onload = () => ctxAssinatura.drawImage(img, 0, 0); img.src = assinaturaSalvaBase64; temAssinatura = true; } 
             else { temAssinatura = false; }
-
             uiDashboard.style.display = "none"; uiEditor.style.display = "block"; window.scrollTo(0,0);
         }
 
@@ -373,33 +341,23 @@
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
             const handleFile = function(e) {
                 const file = e.target.files; if(!file) return;
-                
-                if (!file.type.startsWith('image/')) {
-                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF.");
-                    e.target.value = "";
-                    return;
-                }
-
+                if (!file.type.startsWith('image/')) { alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF."); e.target.value = ""; return; }
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        const canvas = document.createElement('canvas'); 
-                        let maxW = docKey === 'logo' ? 400 : 800; 
+                        const canvas = document.createElement('canvas'); let maxW = docKey === 'logo' ? 400 : 800; 
                         let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
-                        guardarNoCRM();
+                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); guardarNoCRM();
                         document.getElementById(lblTextId).innerText = "✅ " + originalText;
-                        document.getElementById(lblTextId).classList.add('loaded');
-                        document.getElementById(wrapId).classList.add('loaded');
+                        document.getElementById(lblTextId).classList.add('loaded'); document.getElementById(wrapId).classList.add('loaded');
                     }
                     img.src = event.target.result;
                 }
                 reader.readAsDataURL(file);
             };
-            document.getElementById(idGal).addEventListener('change', handleFile);
-            document.getElementById(idCam).addEventListener('change', handleFile);
+            document.getElementById(idGal).addEventListener('change', handleFile); document.getElementById(idCam).addEventListener('change', handleFile);
         }
 
         setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo da Agência');
@@ -414,37 +372,25 @@
         document.getElementById('btnLigarLente').addEventListener('click', async () => {
             try {
                 streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                document.getElementById('videoElement').srcObject = streamAtivo;
-                document.getElementById('moduloCamera').style.display = "block";
-                document.getElementById('btnLigarLente').parentElement.style.display = "none"; 
-                document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none";
-                document.getElementById('painelTags').style.display = "none"; document.getElementById('guardarBtn').style.display = "none";
-                document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
+                document.getElementById('videoElement').srcObject = streamAtivo; document.getElementById('moduloCamera').style.display = "block";
+                document.getElementById('btnLigarLente').parentElement.style.display = "none"; document.getElementById('previewImagem').style.display = "none"; 
+                document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; 
+                document.getElementById('guardarBtn').style.display = "none"; document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
             } catch (err) { alert("Acesso à câmera negado."); }
         });
 
         document.getElementById('btnDisparoLente').addEventListener('click', () => {
-            const video = document.getElementById('videoElement');
-            let w = video.videoWidth, h = video.videoHeight;
+            const video = document.getElementById('videoElement'); let w = video.videoWidth, h = video.videoHeight;
             if (w > 800) { h = h * (800 / w); w = 800; } 
             const cvs = document.getElementById('canvasOculto'); cvs.width = w; cvs.height = h;
-            cvs.getContext('2d').drawImage(video, 0, 0, w, h);
-            concluirCapturaVistoria(cvs.toDataURL('image/jpeg', 0.7));
-            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
-            document.getElementById('moduloCamera').style.display = "none";
+            cvs.getContext('2d').drawImage(video, 0, 0, w, h); concluirCapturaVistoria(cvs.toDataURL('image/jpeg', 0.7));
+            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); } document.getElementById('moduloCamera').style.display = "none";
         });
 
         const handleVistoriaNativa = function(e) {
             const file = e.target.files; if(!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                alert("⚠️ Apenas fotografias/imagens são aceites.");
-                e.target.value = "";
-                return;
-            }
-
-            document.getElementById('micStatus').innerText = "A processar ótica...";
-            const reader = new FileReader();
+            if (!file.type.startsWith('image/')) { alert("⚠️ Apenas fotografias/imagens são aceites."); e.target.value = ""; return; }
+            document.getElementById('micStatus').innerText = "A processar ótica..."; const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
@@ -463,10 +409,10 @@
 
         function concluirCapturaVistoria(base64Image) {
             tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
-            document.getElementById('btnLigarLente').parentElement.style.display = "flex"; 
-            document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
-            document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
-            document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; document.getElementById('guardarBtn').style.display = "block";
+            document.getElementById('btnLigarLente').parentElement.style.display = "flex"; document.getElementById('previewImagem').style.display = "block"; 
+            document.getElementById('painelDitado').style.display = "flex"; document.getElementById('painelTags').style.display = "flex"; 
+            document.getElementById('visorNota').value = ""; document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; 
+            document.getElementById('guardarBtn').style.display = "block";
         }
 
         function adicionarTag(textoTag) { let textoAtual = document.getElementById('visorNota').value.trim(); let novaLinha = textoAtual.length > 0 ? '\n' : ''; document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']'; }
@@ -474,8 +420,7 @@
         window.descarregarFoto = function(indexFoto) {
             if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
             const item = memoriaApp[indexFoto]; const a = document.createElement('a'); a.href = item.imagem;
-            a.download = `POV_Foto_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${indexFoto+1}.jpg`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            a.download = `POV_Foto_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${indexFoto+1}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
         };
 
         function renderizarInterface() {
@@ -484,14 +429,7 @@
             logUi.innerHTML = "";
             memoriaApp.forEach((item, index) => {
                 let txt = item.texto.length > 0 ? item.texto : "Sem comentários.";
-                logUi.innerHTML += `
-                <div class="foto-item-ui">
-                    <div class="ui-img-box" style="background-image: url('${item.imagem}');"></div>
-                    <div style="flex:1;">
-                        <div class="badge-categoria">${item.categoria}</div><p>${txt}</p>
-                        <button class="btn-dl-img" onclick="descarregarFoto(${index})">⬇️ Descarregar Original</button>
-                    </div>
-                </div>`;
+                logUi.innerHTML += `<div class="foto-item-ui"><div class="ui-img-box" style="background-image: url('${item.imagem}');"></div><div style="flex:1;"><div class="badge-categoria">${item.categoria}</div><p>${txt}</p><button class="btn-dl-img" onclick="descarregarFoto(${index})">⬇️ Descarregar Original</button></div></div>`;
             });
         }
 
@@ -499,9 +437,9 @@
             this.style.display = "none"; 
             const concluirGuardar = (coordsText) => {
                 memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
-                guardarNoCRM(); renderizarInterface();
-                tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none";
-                document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
+                guardarNoCRM(); renderizarInterface(); tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; 
+                document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none"; 
+                document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
             };
             document.getElementById('micStatus').innerText = "A captar GPS...";
             if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); }, (err) => { concluirGuardar("Sinal GPS bloqueado"); }, { enableHighAccuracy: true, timeout: 5000 } );
@@ -537,70 +475,22 @@
         document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
-        // V32: MOTOR DE PDF BLINDADO COM O INPUT DE NOME
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             const btn = this; btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)"; btn.disabled = true;
-
-            // Capta o valor da caixa de texto
             let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
             if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
             if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
-
             const pdfZone = document.getElementById('pdf-render-zone'); pdfZone.style.display = 'block';
 
-            let htmlString = `
-                <div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
-                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
-                        <tr>
-                            <td style="width: 50%; vertical-align: middle;">
-                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">FICHA DE ANGARIAÇÃO</h1>`}
-                            </td>
-                            <td style="width: 50%; text-align: right; vertical-align: middle;">
-                                <div style="font-weight: 700; font-size: 16px; color: #111;">${metadados.agencia || "Agência Não Definida"}</div>
-                                <div style="font-size: 10px; color: #666; margin-top: 4px;">LICENÇA AMI: ${metadados.ami || "N/A"}</div>
-                            </td>
-                        </tr>
-                    </table>
-                    <table style="width: 100%; margin-bottom: 25px; table-layout: fixed; border-collapse: collapse;">
-                        <tr>
-                            <td style="width: 50%; vertical-align: top; padding-right: 10px;">
-                                <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
-                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Imóvel</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Referência:</b> ${metadados.ref || "N/A"}</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Localização:</b> ${metadados.local || "N/A"}</div>
-                                    <div style="font-size: 12px;"><b style="color:#222;">Preço de Venda:</b> ${metadados.preco || "Sob Consulta"}</div>
-                                </div>
-                            </td>
-                            <td style="width: 50%; vertical-align: top; padding-left: 10px;">
-                                 <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
-                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Proprietário</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Nome:</b> ${metadados.nomeProp || "N/A"}</div>
-                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Contacto:</b> ${metadados.contactoProp || "N/A"}</div>
-                                    <div style="font-size: 12px;"><b style="color:#222;">Morada:</b> ${metadados.moradaProp || "N/A"}</div>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <div style="margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
-                        <div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #111; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Status de Documentação Legal</div>
-                        <table style="width: 100%; font-size: 11px; color: #444;">
-                            <tr><td style="width: 50%; padding: 4px 0;">Cartão de Cidadão: <b style="color:${docsApp.ccF ? '#27ae60' : '#d35400'};">${docsApp.ccF ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Caderneta Predial: <b style="color:${docsApp.caderneta ? '#27ae60' : '#d35400'};">${docsApp.caderneta ? 'Entregue' : 'Pendente'}</b></td></tr>
-                            <tr><td style="width: 50%; padding: 4px 0;">Registo Predial: <b style="color:${docsApp.registo ? '#27ae60' : '#d35400'};">${docsApp.registo ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Licença de Utilização: <b style="color:${docsApp.licenca ? '#27ae60' : '#d35400'};">${docsApp.licenca ? 'Entregue' : 'Pendente'}</b></td></tr>
-                            <tr><td style="width: 50%; padding: 4px 0;">Certificado Energético: <b style="color:${docsApp.certificado ? '#27ae60' : '#d35400'};">${docsApp.certificado ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Outros Documentos: <b style="color:${docsApp.outros ? '#27ae60' : '#888'};">${docsApp.outros ? 'Entregue' : 'N/A'}</b></td></tr>
-                        </table>
-                    </div><div style="page-break-before: auto;"></div>`;
+            let htmlString = `<div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
+                <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;"><tr><td style="width: 50%; vertical-align: middle;">${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">FICHA DE ANGARIAÇÃO</h1>`}</td><td style="width: 50%; text-align: right; vertical-align: middle;"><div style="font-weight: 700; font-size: 16px; color: #111;">${metadados.agencia || "Agência Não Definida"}</div><div style="font-size: 10px; color: #666; margin-top: 4px;">LICENÇA AMI: ${metadados.ami || "N/A"}</div></td></tr></table>
+                <table style="width: 100%; margin-bottom: 25px; table-layout: fixed; border-collapse: collapse;"><tr><td style="width: 50%; vertical-align: top; padding-right: 10px;"><div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;"><div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Imóvel</div><div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Referência:</b> ${metadados.ref || "N/A"}</div><div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Localização:</b> ${metadados.local || "N/A"}</div><div style="font-size: 12px;"><b style="color:#222;">Preço de Venda:</b> ${metadados.preco || "Sob Consulta"}</div></div></td><td style="width: 50%; vertical-align: top; padding-left: 10px;"><div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;"><div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Proprietário</div><div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Nome:</b> ${metadados.nomeProp || "N/A"}</div><div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Contacto:</b> ${metadados.contactoProp || "N/A"}</div><div style="font-size: 12px;"><b style="color:#222;">Morada:</b> ${metadados.moradaProp || "N/A"}</div></div></td></tr></table>
+                <div style="margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;"><div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #111; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Status de Documentação Legal</div><table style="width: 100%; font-size: 11px; color: #444;"><tr><td style="width: 50%; padding: 4px 0;">Cartão de Cidadão: <b style="color:${docsApp.ccF ? '#27ae60' : '#d35400'};">${docsApp.ccF ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Caderneta Predial: <b style="color:${docsApp.caderneta ? '#27ae60' : '#d35400'};">${docsApp.caderneta ? 'Entregue' : 'Pendente'}</b></td></tr><tr><td style="width: 50%; padding: 4px 0;">Registo Predial: <b style="color:${docsApp.registo ? '#27ae60' : '#d35400'};">${docsApp.registo ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Licença de Utilização: <b style="color:${docsApp.licenca ? '#27ae60' : '#d35400'};">${docsApp.licenca ? 'Entregue' : 'Pendente'}</b></td></tr><tr><td style="width: 50%; padding: 4px 0;">Certificado Energético: <b style="color:${docsApp.certificado ? '#27ae60' : '#d35400'};">${docsApp.certificado ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Outros Documentos: <b style="color:${docsApp.outros ? '#27ae60' : '#888'};">${docsApp.outros ? 'Entregue' : 'N/A'}</b></td></tr></table></div><div style="page-break-before: auto;"></div>`;
 
             if(memoriaApp.length > 0) { htmlString += `<div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Relatório de Vistoria Técnica</div>`; }
             memoriaApp.forEach((item, index) => {
                 let textoFormatado = item.texto.replace(/\n/g, '<br>'); if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem comentários registados.</span>";
-                htmlString += `
-                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
-                    <tr><td style="width: 45%; vertical-align: top; padding: 0;"><div style="width: 100%; height: 180px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div></td><td style="width: 5%; padding: 0;"></td>
-                        <td style="width: 50%; vertical-align: top; padding: 0; padding-top: 5px; padding-right: 20px; box-sizing: border-box;">
-                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 8px; display: block; padding-right: 10px;"><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span><div style="clear: both;"></div></div>
-                            <div style="font-family: 'Playfair Display', serif; font-size: 13px; color: #222; line-height: 1.5; margin: 0; min-height: 80px; width: 90%; padding-right: 20px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
-                            <div style="margin-top: 10px; font-size: 8px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 5px;">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div>
-                        </td></tr></table>`;
+                htmlString += `<table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;"><tr><td style="width: 45%; vertical-align: top; padding: 0;"><div style="width: 100%; height: 180px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div></td><td style="width: 5%; padding: 0;"></td><td style="width: 50%; vertical-align: top; padding: 0; padding-top: 5px; padding-right: 20px; box-sizing: border-box;"><div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 8px; display: block; padding-right: 10px;"><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span><div style="clear: both;"></div></div><div style="font-family: 'Playfair Display', serif; font-size: 13px; color: #222; line-height: 1.5; margin: 0; min-height: 80px; width: 90%; padding-right: 20px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div><div style="margin-top: 10px; font-size: 8px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 5px;">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div></td></tr></table>`;
             });
 
             if (temAssinatura && assinaturaSalvaBase64 !== "") { htmlString += `<div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;"><img src="${assinaturaSalvaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;"><div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação Legal - Proprietário</div></div>`; }
@@ -613,23 +503,11 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                const opt = { 
-                    margin:, 
-                    filename: nomeFicheiroFinal, 
-                    image: { type: 'jpeg', quality: 0.90 }, 
-                    html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-                };
-                
+                const opt = { margin:, filename: nomeFicheiroFinal, image: { type: 'jpeg', quality: 0.90 }, html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 html2pdf().set(opt).from(pdfZone).save().then(() => { 
-                    pdfZone.style.display = 'none'; 
-                    pdfZone.innerHTML = ''; 
-                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
-                    btn.disabled = false;
+                    pdfZone.style.display = 'none'; pdfZone.innerHTML = ''; btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; btn.disabled = false;
                 }).catch(err => {
-                    alert("Aviso: Falha de memória no dispositivo. Limpe a cache e tente novamente."); 
-                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
-                    btn.disabled = false;
+                    alert("Aviso: Falha de memória no dispositivo. Limpe a cache e tente novamente."); btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; btn.disabled = false;
                 });
             }, 1000); 
         });
@@ -643,28 +521,15 @@
         async function sincronizarComSede() {
             const btn = document.getElementById('btnSyncSede');
             const statusText = document.getElementById('syncStatus');
-            
             let dadosLocais = localStorage.getItem('pov_crm_v32');
-            
-            if (!dadosLocais) {
-                statusText.innerText = "✅ Tudo em dia! Nenhuma angariação no tablet.";
-                return;
-            }
-
+            if (!dadosLocais) { statusText.innerText = "✅ Tudo em dia! Nenhuma angariação no tablet."; return; }
             let angariacoes = JSON.parse(dadosLocais);
+            if (angariacoes.length === 0) { statusText.innerText = "✅ Tudo em dia! Nenhuma angariação para enviar."; return; }
 
-            if (angariacoes.length === 0) {
-                statusText.innerText = "✅ Tudo em dia! Nenhuma angariação para enviar.";
-                return;
-            }
-
-            btn.disabled = true;
-            btn.style.backgroundColor = "#9ca3af";
+            btn.disabled = true; btn.style.backgroundColor = "#9ca3af";
             statusText.innerText = `🔄 A iniciar envio de ${angariacoes.length} angariações...`;
             
-            let sucessoCount = 0;
-            let falhaCount = 0;
-            let angariacoesRestantes = [];
+            let sucessoCount = 0; let falhaCount = 0; let angariacoesRestantes = [];
 
             for (let i = 0; i < angariacoes.length; i++) {
                 let pastaV32 = angariacoes[i];
@@ -703,31 +568,22 @@
                         body: JSON.stringify(payload)
                     });
 
-                    if (!response.ok) { 
-                        throw new Error(`Falha no envio`); 
-                    }
+                    if (!response.ok) throw new Error(`Falha no envio`); 
                     sucessoCount++;
                 } catch (error) {
-                    console.error(error);
-                    falhaCount++;
-                    angariacoesRestantes.push(pastaV32);
+                    falhaCount++; angariacoesRestantes.push(pastaV32);
                 }
             }
 
             localStorage.setItem('pov_crm_v32', JSON.stringify(angariacoesRestantes));
-            crmData = angariacoesRestantes;
-            renderizarDashboard();
+            crmData = angariacoesRestantes; renderizarDashboard();
 
             if (falhaCount === 0) {
-                statusText.innerText = `🚀 Sucesso! ${sucessoCount} angariação(ões) copiadas para a sede.`;
-                statusText.style.color = "#16a34a";
+                statusText.innerText = `🚀 Sucesso! ${sucessoCount} enviadas para a sede.`; statusText.style.color = "#16a34a";
             } else {
-                statusText.innerText = `⚠️ ${sucessoCount} enviadas, ${falhaCount} falharam. Tente novamente.`;
-                statusText.style.color = "#dc2626";
+                statusText.innerText = `⚠️ ${sucessoCount} enviadas, ${falhaCount} falharam. Tente novamente.`; statusText.style.color = "#dc2626";
             }
-
-            btn.disabled = false;
-            btn.style.backgroundColor = "#2563eb";
+            btn.disabled = false; btn.style.backgroundColor = "#2563eb";
         }
 
         renderizarDashboard();

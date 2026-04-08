@@ -692,7 +692,7 @@
                 };
 
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/angariacoes_v32`, {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/angariacoes_sandbox`, {
                         method: 'POST',
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
@@ -704,7 +704,7 @@
                     });
 
                     if (!response.ok) { 
-                        throw new Error(`Falha no envio`); 
+                        throw new Error('Falha no envio'); 
                     }
                     sucessoCount++;
                 } catch (error) {

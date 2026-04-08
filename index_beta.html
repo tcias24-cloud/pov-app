@@ -272,7 +272,7 @@
         let crmData = JSON.parse(localStorage.getItem('pov_crm_v32')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
-        let tempImagemBase64 = null; let streamAtivo = null;
+        let tempImagemBase64 = ""; let streamAtivo = null;
 
         const uiDashboard = document.getElementById('crm-dashboard');
         const uiEditor = document.getElementById('app-ui-container');
@@ -729,8 +729,6 @@
             btn.disabled = false;
             btn.style.backgroundColor = "#2563eb";
         }
-
-        renderizarDashboard();
     </script>
 </body>
 </html>

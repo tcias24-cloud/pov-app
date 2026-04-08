@@ -269,21 +269,20 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // O "ASSASSINO SILENCIOSO" FOI RESOLVIDO NESTA LINHA
-        let crmData = [];
-        try {
-            let dadosGuardados = localStorage.getItem('pov_crm_v32');
-            // Só lê os dados se eles existirem e não forem "lixo" invisível
-            if (dadosGuardados && dadosGuardados !== "undefined" && dadosGuardados !== "null") {
-                crmData = JSON.parse(dadosGuardados);
-                // Vacina: se os dados lidos não forem uma lista correta, força a recriar a lista
-                if (!Array.isArray(crmData)) { crmData = []; }
-            }
-        } catch (error) {
-            console.warn("Memória local curada.");
-            crmData = [];
-        }
+        // ======================================================================
+        // DETETOR DE ERROS GLOBAL - OBRIGATÓRIO PARA SABER O QUE ESTÁ A FALHAR
+        // ======================================================================
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert("🚨 DETETOR DE ERROS 🚨\n\nFalha: " + message + "\nLinha: " + lineno + "\nColuna: " + colno);
+            return false;
+        };
 
+        window.addEventListener("unhandledrejection", function(event) {
+            alert("🚨 ERRO DE REDE/PROMESSA 🚨\n\nDetalhe: " + event.reason);
+        });
+
+        // O TEU CÓDIGO ORIGINAL COMEÇA AQUI
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v32')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -551,9 +550,11 @@
         document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
+        // V32: MOTOR DE PDF BLINDADO COM O INPUT DE NOME
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             const btn = this; btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)"; btn.disabled = true;
 
+            // Capta o valor da caixa de texto
             let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
             if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
             if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
@@ -663,15 +664,9 @@
                 return;
             }
 
-            let angariacoes = [];
-            try {
-                angariacoes = JSON.parse(dadosLocais);
-                if (!Array.isArray(angariacoes)) angariacoes = [];
-            } catch(e) {
-                angariacoes = [];
-            }
+            let angariacoes = JSON.parse(dadosLocais);
 
-            if (angariacoes.length === 0) {
+            if (!Array.isArray(angariacoes) || angariacoes.length === 0) {
                 statusText.innerText = "✅ Tudo em dia! Nenhuma angariação para enviar.";
                 return;
             }
@@ -710,7 +705,7 @@
                 };
 
                 try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/angariacoes_sandbox`, {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/angariacoes_v32`, {
                         method: 'POST',
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,

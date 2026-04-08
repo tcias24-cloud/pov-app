@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - BETA TESTES CLOUD</title>
+    <title>POV App - Enterprise CRM V32 (Beta Cloud)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -79,7 +79,7 @@
         </div>
 
         <div class="card" style="border-color: #2563eb;">
-            <h2 style="color: #2563eb; border-bottom-color: #2563eb;">☁️ Cloud Nexus (Sede)</h2>
+            <h2 style="color: #2563eb; border-bottom: 1px solid #2563eb; padding-bottom: 10px; font-size: 13px; text-transform: uppercase; margin-top: 0; letter-spacing: 2px;">☁️ Cloud Nexus (Sede)</h2>
             <button id="btnSyncSede" class="btn-acao" style="background-color: #2563eb; color: #fff; margin-bottom: 0;">SINCRONIZAR COM A SEDE</button>
             <p id="syncStatus" style="font-size: 11px; color: #aaa; text-align: center; margin-top: 10px; margin-bottom: 0;">Pronto para conectar.</p>
         </div>
@@ -269,25 +269,8 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // ==========================================
-        // SISTEMA ANTI-FALHAS (Detetor de Erros Visual)
-        // ==========================================
-        window.onerror = function(msg, url, line) {
-            alert("⚠️ Erro Interno Detetado!\nDetalhe: " + msg + "\nLinha: " + line);
-        };
-
-        // ==========================================
-        // 1. INICIALIZAÇÃO DE MEMÓRIA (BETA)
-        // ==========================================
-        let crmData = [];
-        try {
-            const memLocal = localStorage.getItem('pov_beta_test');
-            if (memLocal) crmData = JSON.parse(memLocal);
-        } catch(e) {
-            console.error("Memória limpa por erro de leitura.");
-            crmData = [];
-        }
-
+        // MUDANÇA 1: Memória TOTALMENTE NOVA para garantir que não há erros do passado
+        let crmData = JSON.parse(localStorage.getItem('pov_beta_v2')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -304,7 +287,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_beta_test', JSON.stringify(crmData));
+            localStorage.setItem('pov_beta_v2', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -375,8 +358,8 @@
         });
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
-            if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos DESTA SANDBOX. Confirma?")) {
-                localStorage.removeItem('pov_beta_test'); crmData = []; renderizarDashboard();
+            if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
+                localStorage.removeItem('pov_beta_v2'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -631,7 +614,6 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                // V32: Erro das margens silenciosamente exterminado.
                 const opt = { 
                     margin:, 
                     filename: nomeFicheiroFinal, 

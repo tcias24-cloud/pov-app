@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POV App - Enterprise CRM V32 (Beta Cloud)</title>
+    <title>POV App - Enterprise CRM V32 (Final)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -72,7 +72,7 @@
 
     <div id="crm-dashboard">
         <div class="card">
-            <h2>🗂️ POV CRM - Gestor de Clientes (BETA)</h2>
+            <h2>🗂️ POV CRM - Gestor de Clientes</h2>
             <div id="lista-crm" style="margin-bottom: 20px;"></div>
             <button id="btnNovaPasta" class="btn-acao btn-pdf">➕ NOVA ANGARIAÇÃO</button>
             <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #555; border: 1px solid #333; margin-top: 20px; font-size: 10px;">Formatar Base de Dados</button>
@@ -80,7 +80,7 @@
 
         <div class="card" style="border-color: #2563eb;">
             <h2 style="color: #2563eb; border-bottom: 1px solid #2563eb; padding-bottom: 10px; font-size: 13px; text-transform: uppercase; margin-top: 0; letter-spacing: 2px;">☁️ Cloud Nexus (Sede)</h2>
-            <button id="btnSyncSede" class="btn-acao" style="background-color: #2563eb; color: #fff; margin-bottom: 0;">SINCRONIZAR COM A SEDE</button>
+            <button id="btnSyncSede" onclick="sincronizarComSede()" class="btn-acao" style="background-color: #2563eb; color: #fff; margin-bottom: 0;">SINCRONIZAR COM A SEDE</button>
             <p id="syncStatus" style="font-size: 11px; color: #aaa; text-align: center; margin-top: 10px; margin-bottom: 0;">Pronto para conectar.</p>
         </div>
     </div>
@@ -269,8 +269,7 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MUDANÇA 1: Memória TOTALMENTE NOVA para garantir que não há erros do passado
-        let crmData = JSON.parse(localStorage.getItem('pov_beta_v2')) || [];
+        let crmData = JSON.parse(localStorage.getItem('pov_crm_v32')) || [];
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
@@ -287,7 +286,7 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            localStorage.setItem('pov_beta_v2', JSON.stringify(crmData));
+            localStorage.setItem('pov_crm_v32', JSON.stringify(crmData));
             renderizarDashboard();
         }
 
@@ -359,7 +358,7 @@
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
             if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                localStorage.removeItem('pov_beta_v2'); crmData = []; renderizarDashboard();
+                localStorage.removeItem('pov_crm_v32'); crmData = []; renderizarDashboard();
             }
         });
 
@@ -634,6 +633,102 @@
                 });
             }, 1000); 
         });
+
+        // ==========================================
+        // MÓDULO DE SINCRONIZAÇÃO (CLOUD NEXUS)
+        // ==========================================
+        const SUPABASE_URL = 'https://clyuanefxouvchldtcxt.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_njVHMomWfqCjzUL7GxP4Vg_Br-jUCND'; 
+
+        async function sincronizarComSede() {
+            const btn = document.getElementById('btnSyncSede');
+            const statusText = document.getElementById('syncStatus');
+            
+            let dadosLocais = localStorage.getItem('pov_crm_v32');
+            
+            if (!dadosLocais) {
+                statusText.innerText = "✅ Tudo em dia! Nenhuma angariação no tablet.";
+                return;
+            }
+
+            let angariacoes = JSON.parse(dadosLocais);
+
+            if (angariacoes.length === 0) {
+                statusText.innerText = "✅ Tudo em dia! Nenhuma angariação para enviar.";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.style.backgroundColor = "#9ca3af";
+            statusText.innerText = `🔄 A iniciar envio de ${angariacoes.length} angariações...`;
+            
+            let sucessoCount = 0;
+            let falhaCount = 0;
+            let angariacoesRestantes = [];
+
+            for (let i = 0; i < angariacoes.length; i++) {
+                let pastaV32 = angariacoes[i];
+                statusText.innerText = `⏳ A enviar ${i + 1} de ${angariacoes.length}... (Aguarde)`;
+
+                const meta = pastaV32.meta || {};
+                let precoLimpo = null;
+                if (meta.preco) { 
+                    precoLimpo = parseFloat(meta.preco.replace(/[^0-9,.-]/g, '').replace(',', '.')); 
+                    if (isNaN(precoLimpo)) precoLimpo = null;
+                }
+
+                let payload = {
+                    agencia: meta.agencia || "Não definida",
+                    licenca_ami: meta.ami || "N/A",
+                    referencia: meta.ref || "Sem Referência",
+                    localizacao: meta.local || "Não definida",
+                    preco: precoLimpo,
+                    proprietario_nome: meta.nomeProp || "Não definido",
+                    proprietario_contacto: meta.contactoProp || "Não definido",
+                    proprietario_morada: meta.moradaProp || "Não definida",
+                    documentos_legais: pastaV32.docs || {},
+                    fotos_vistoria: pastaV32.fotos || [],
+                    assinatura_titular: pastaV32.assinatura || null
+                };
+
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/angariacoes_v32`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) { 
+                        throw new Error(`Falha no envio`); 
+                    }
+                    sucessoCount++;
+                } catch (error) {
+                    console.error(error);
+                    falhaCount++;
+                    angariacoesRestantes.push(pastaV32);
+                }
+            }
+
+            localStorage.setItem('pov_crm_v32', JSON.stringify(angariacoesRestantes));
+            crmData = angariacoesRestantes;
+            renderizarDashboard();
+
+            if (falhaCount === 0) {
+                statusText.innerText = `🚀 Sucesso! ${sucessoCount} angariação(ões) copiadas para a sede.`;
+                statusText.style.color = "#16a34a";
+            } else {
+                statusText.innerText = `⚠️ ${sucessoCount} enviadas, ${falhaCount} falharam. Tente novamente.`;
+                statusText.style.color = "#dc2626";
+            }
+
+            btn.disabled = false;
+            btn.style.backgroundColor = "#2563eb";
+        }
 
         renderizarDashboard();
     </script>

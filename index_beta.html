@@ -92,7 +92,6 @@
                 <div class="dual-btn-container">
                     <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
                     <input type="file" id="fileLogo_gal" class="hidden-input">
-                    
                     <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
                     <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
                 </div>
@@ -263,16 +262,56 @@
     <div id="pdf-render-zone"></div>
 
     <script>
-        // MUDANÇA 1: Usar a memória BETA
-        let crmData = JSON.parse(localStorage.getItem('pov_beta_test')) || [];
+        // ==========================================
+        // SISTEMA ANTI-FALHAS (Detetor de Erros Visual)
+        // ==========================================
+        window.onerror = function(msg, url, line) {
+            alert("⚠️ Erro Interno Detetado!\nDetalhe: " + msg + "\nLinha: " + line);
+        };
+
+        // ==========================================
+        // 1. INICIALIZAÇÃO SEGURA DE VARIÁVEIS NO TOPO
+        // ==========================================
+        const mapMeta = [
+            { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
+            { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
+            { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
+        ];
+
+        const docKeys = [
+            { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
+            { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'CC (Frente)' },
+            { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'CC (Verso)' },
+            { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
+            { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
+            { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
+            { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
+            { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
+        ];
+
+        let crmData = [];
+        try {
+            const memLocal = localStorage.getItem('pov_beta_test');
+            if (memLocal) crmData = JSON.parse(memLocal);
+        } catch(e) {
+            console.error("Memória limpa por erro de leitura.");
+            crmData = [];
+        }
+
         let activeIndex = -1; 
         let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
         let tempImagemBase64 = ""; let streamAtivo = null;
 
+        // Elementos DOM Principais
         const uiDashboard = document.getElementById('crm-dashboard');
         const uiEditor = document.getElementById('app-ui-container');
         const listaCRM = document.getElementById('lista-crm');
+        const canvasAssinatura = document.getElementById('canvasAssinatura'); 
+        const ctxAssinatura = canvasAssinatura.getContext('2d');
 
+        // ==========================================
+        // 2. FUNÇÕES PRINCIPAIS DE NAVEGAÇÃO
+        // ==========================================
         function guardarNoCRM() {
             if (activeIndex === -1) return;
             crmData[activeIndex] = {
@@ -281,7 +320,6 @@
                 data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
                 meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
             };
-            // MUDANÇA 2: Guardar na memória BETA
             localStorage.setItem('pov_beta_test', JSON.stringify(crmData));
             renderizarDashboard();
         }
@@ -302,17 +340,6 @@
                     </div>`;
             });
         }
-
-        const docKeys = [
-            { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
-            { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'CC (Frente)' },
-            { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'CC (Verso)' },
-            { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
-            { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
-            { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
-            { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
-            { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
-        ];
 
         function abrirPasta(index) {
             activeIndex = index;
@@ -343,6 +370,9 @@
             uiDashboard.style.display = "none"; uiEditor.style.display = "block"; window.scrollTo(0,0);
         }
 
+        // ==========================================
+        // 3. EVENTOS DE CLIQUE BÁSICOS
+        // ==========================================
         document.getElementById('btnNovaPasta').addEventListener('click', () => {
             crmData.push({ id: new Date().getTime(), titulo: "Rascunho...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
             abrirPasta(crmData.length - 1);
@@ -353,30 +383,20 @@
         });
 
         document.getElementById('btnLimparTudo').addEventListener('click', () => {
-            if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
-                // MUDANÇA 3: Limpar a memória BETA
+            if(confirm("PERIGO: Vai apagar TODAS as pastas de testes e fotos. Confirma?")) {
                 localStorage.removeItem('pov_beta_test'); crmData = []; renderizarDashboard();
             }
         });
 
-        const mapMeta = [
-            { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
-            { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
-            { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
-        ];
-
         mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
 
+        // ==========================================
+        // 4. MOTOR DE FOTOS E DOCUMENTOS
+        // ==========================================
         function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
             const handleFile = function(e) {
                 const file = e.target.files; if(!file) return;
-                
-                if (!file.type.startsWith('image/')) {
-                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF.");
-                    e.target.value = "";
-                    return;
-                }
-
+                if (!file.type.startsWith('image/')) { alert("⚠️ Apenas fotografias/imagens são suportadas."); e.target.value = ""; return; }
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
@@ -433,13 +453,7 @@
 
         const handleVistoriaNativa = function(e) {
             const file = e.target.files; if(!file) return;
-            
-            if (!file.type.startsWith('image/')) {
-                alert("⚠️ Apenas fotografias/imagens são aceites.");
-                e.target.value = "";
-                return;
-            }
-
+            if (!file.type.startsWith('image/')) { alert("⚠️ Apenas imagens."); e.target.value = ""; return; }
             document.getElementById('micStatus').innerText = "A processar ótica...";
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -505,11 +519,18 @@
             } else { concluirGuardar("GPS não suportado."); }
         });
 
-        const canvasAssinatura = document.getElementById('canvasAssinatura'); const ctxAssinatura = canvasAssinatura.getContext('2d');
+        // ==========================================
+        // 5. MOTOR DE ASSINATURA E VOZ
+        // ==========================================
         let assinando = false; let temAssinatura = false; 
-        function inicializarCanvas() { const r = canvasAssinatura.parentElement.getBoundingClientRect(); canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; }
+        function inicializarCanvas() { 
+            if(!canvasAssinatura) return;
+            const r = canvasAssinatura.parentElement.getBoundingClientRect(); 
+            canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; 
+            canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; 
+        }
         inicializarCanvas();
-        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
         canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
         canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
         canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
@@ -534,6 +555,9 @@
         document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
         document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
 
+        // ==========================================
+        // 6. MOTOR DE PDF
+        // ==========================================
         document.getElementById('gerarPdfBtn').addEventListener('click', function() {
             const btn = this; btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)"; btn.disabled = true;
 
@@ -608,27 +632,17 @@
             window.scrollTo(0, 0);
 
             setTimeout(() => {
-                const opt = { 
-                    margin:, 
-                    filename: nomeFicheiroFinal, 
-                    image: { type: 'jpeg', quality: 0.90 }, 
-                    html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-                };
-                
+                const opt = { margin:, filename: nomeFicheiroFinal, image: { type: 'jpeg', quality: 0.90 }, html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 html2pdf().set(opt).from(pdfZone).save().then(() => { 
-                    pdfZone.style.display = 'none'; 
-                    pdfZone.innerHTML = ''; 
-                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
-                    btn.disabled = false;
+                    pdfZone.style.display = 'none'; pdfZone.innerHTML = ''; btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; btn.disabled = false;
                 }).catch(err => {
                     alert("Aviso: Falha de memória no dispositivo. Limpe a cache e tente novamente."); 
-                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
-                    btn.disabled = false;
+                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; btn.disabled = false;
                 });
             }, 1000); 
         });
 
+        // ARRANCAR APP
         renderizarDashboard();
     </script>
 </body>

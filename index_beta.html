@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POV App - Enterprise CRM BETA TESTES</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #050505; color: #ffffff; padding: 15px; margin: 0; }
+        .card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #222; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        h2 { margin-top: 0; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; color: #d4af37; letter-spacing: 2px; }
+        .btn-acao { background-color: #ffffff; color: #000; border: none; padding: 15px; font-size: 13px; font-weight: 600; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-acao:active { opacity: 0.8; }
+        .btn-acao:disabled { background-color: #555; color: #888; cursor: not-allowed; }
+        .btn-guardar { background-color: #d4af37; color: #000; display: none; margin-top: 15px;}
+        .btn-pdf { background-color: #d4af37; color: #000; margin-top: 20px; } 
+        .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
+        .input-meta, .select-divisao { flex: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 14px; font-family: inherit; }
+        .btn-mic-pequeno { background-color: #222; color: #d4af37; border: 1px solid #333; border-radius: 6px; width: 45px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; }
+        .btn-mic-pequeno.recording { background-color: #ff0000; color: #fff; border-color: #ff0000; animation: pulse 1s infinite; }
+        
+        .hidden-input { position: absolute; width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; z-index: -1; }
+        
+        .upload-wrapper { background: #1a1a1a; border: 1px dashed #444; padding: 12px; border-radius: 6px; margin-bottom: 10px; text-align: center; transition: 0.3s; }
+        .upload-wrapper.loaded { border-color: #d4af37; background: rgba(212, 175, 55, 0.05); }
+        .lbl-doc-title { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; display: block; letter-spacing: 1px; transition: 0.3s;}
+        .lbl-doc-title.loaded { color: #d4af37; }
+        .dual-btn-container { display: flex; gap: 8px; width: 100%; justify-content: center; }
+        .btn-micro { background: #222; color: #d4af37; border: 1px solid #444; border-radius: 4px; padding: 10px 5px; font-size: 9px; cursor: pointer; text-transform: uppercase; flex: 1; font-weight: 600; display: block; margin: 0; text-align: center;}
+        .btn-micro:hover, .btn-micro:active { border-color: #d4af37; background: #333; }
+
+        #moduloCamera { display: none; position: relative; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 2px solid #d4af37; background: #000; }
+        #videoElement { width: 100%; display: block; object-fit: cover; }
+        .grid-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .grid-line { position: absolute; background: rgba(255, 255, 255, 0.5); box-shadow: 0 0 2px rgba(0,0,0,0.8); }
+        .v-line-1 { left: 33.33%; width: 1px; height: 100%; }
+        .v-line-2 { left: 66.66%; width: 1px; height: 100%; }
+        .h-line-1 { top: 33.33%; width: 100%; height: 1px; }
+        .h-line-2 { top: 66.66%; width: 100%; height: 1px; }
+        #btnDisparoLente { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: #d4af37; color: #000; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; font-size: 12px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #previewImagem { width: 100%; max-height: 250px; object-fit: cover; border-radius: 6px; margin-bottom: 15px; display: none; border: 1px solid #333; }
+        .painel-ditado { display: none; align-items: flex-start; gap: 10px; margin-bottom: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .btn-icone-mic { background-color: #ff3b30; color: white; border: none; border-radius: 50%; width: 55px; height: 55px; font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; }
+        .btn-icone-mic.recording { background-color: #ff0000; animation: pulse 1s infinite; }
+        .visor-texto { width: 100%; min-height: 80px; padding: 10px; border-radius: 6px; border: none; background: #0a0a0a; color: #fff; font-size: 14px; resize: none; font-family: inherit; }
+        .visor-texto:focus { outline: none; border: 1px solid #d4af37; }
+        .painel-tags { display: none; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; }
+        .smart-tag { background: transparent; border: 1px solid #444; color: #aaa; padding: 6px 12px; border-radius: 20px; font-size: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; }
+        .smart-tag:hover, .smart-tag:active { border-color: #d4af37; color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+        .status { font-size: 11px; color: #666; margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 600; letter-spacing: 1px; }
+        #canvasAssinatura { width: 100%; height: 150px; background: #fff; border-radius: 6px; cursor: crosshair; touch-action: none; margin-bottom: 10px; }
+        .btn-limpar-canvas { background: transparent; border: 1px solid #666; color: #888; padding: 8px; font-size: 11px; text-transform: uppercase; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 15px;}
+        .foto-item-ui { background: #1a1a1a; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #d4af37; display: flex; align-items: flex-start; gap: 12px; }
+        .ui-img-box { width: 60px; height: 60px; border-radius: 4px; background-size: cover; background-position: center; flex-shrink: 0; }
+        .foto-item-ui p { font-size: 12px; margin: 0; flex: 1; color: #ccc; line-height: 1.4; white-space: pre-wrap; }
+        .badge-categoria { font-size: 9px; background: #333; color: #d4af37; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; margin-bottom: 4px; display: inline-block;}
+        .btn-dl-img { background: #333; color: #d4af37; border: 1px solid #555; border-radius: 4px; font-size: 9px; padding: 4px 8px; cursor: pointer; margin-top: 5px; text-transform: uppercase; }
+        
+        #pdf-render-zone { display: none; background-color: #ffffff; color: #000000; width: 100%; padding: 40px; box-sizing: border-box; margin: 0; }
+        
+        #crm-dashboard { display: block; }
+        #app-ui-container { display: none; }
+        .crm-item { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border-left: 4px solid #d4af37; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .crm-item:hover { background: #222; }
+        .crm-title { font-weight: bold; font-size: 14px; color: #fff; margin-bottom: 4px; }
+        .crm-ref { font-size: 11px; color: #aaa; text-transform: uppercase; }
+        .btn-voltar { background: transparent; color: #d4af37; border: 1px solid #d4af37; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 20px; text-transform: uppercase; font-size: 11px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="crm-dashboard">
+        <div class="card">
+            <h2>🗂️ POV CRM - Gestor de Clientes (BETA)</h2>
+            <div id="lista-crm" style="margin-bottom: 20px;"></div>
+            <button id="btnNovaPasta" class="btn-acao btn-pdf">➕ NOVA ANGARIAÇÃO</button>
+            <button id="btnLimparTudo" class="btn-acao" style="background: transparent; color: #555; border: 1px solid #333; margin-top: 20px; font-size: 10px;">Formatar Base de Dados</button>
+        </div>
+    </div>
+
+    <div id="app-ui-container">
+        <button id="btnVoltarCRM" class="btn-voltar">⬅️ GUARDAR E VOLTAR ÀS PASTAS</button>
+        
+        <div class="card">
+            <h2>🏢 1. Identificação da Imobiliária</h2>
+            <div class="input-group"><input type="text" id="inputAgencia" class="input-meta" placeholder="Nome da Agência" style="border-color: #d4af37;"></div>
+            <div class="input-group"><input type="text" id="inputAMI" class="input-meta" placeholder="Licença AMI"></div>
+            
+            <div class="upload-wrapper" id="wrap_logo">
+                <span class="lbl-doc-title" id="lblText_logo">📄 Logótipo da Agência</span>
+                <div class="dual-btn-container">
+                    <label for="fileLogo_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLogo_gal" class="hidden-input">
+                    
+                    <label for="fileLogo_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLogo_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📍 2. Identificação do Imóvel</h2>
+            <div class="input-group"><input type="text" id="inputReferencia" class="input-meta" placeholder="Referência (Ex: ID-001)"></div>
+            <div class="input-group">
+                <input type="text" id="inputLocal" class="input-meta" placeholder="Localização">
+                <button id="micLocal" class="btn-mic-pequeno">🎙️</button>
+            </div>
+            <div class="input-group"><input type="text" id="inputPreco" class="input-meta" placeholder="Preço (€)"></div>
+        </div>
+
+        <div class="card">
+            <h2>👤 3. Dados do Proprietário</h2>
+            <div class="input-group"><input type="text" id="inputNomeProp" class="input-meta" placeholder="Nome Completo"></div>
+            <div class="input-group"><input type="text" id="inputContactoProp" class="input-meta" placeholder="Telemóvel / E-mail"></div>
+            <div class="input-group"><input type="text" id="inputMoradaProp" class="input-meta" placeholder="Morada Fiscal"></div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="upload-wrapper" id="wrap_ccF" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccF">📄 CC (Frente)</span>
+                    <div class="dual-btn-container">
+                        <label for="fileCCF_gal" class="btn-micro">📂 Fich</label>
+                        <input type="file" id="fileCCF_gal" class="hidden-input">
+                        <label for="fileCCF_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCF_cam" accept="image/*" capture="environment" class="hidden-input">
+                    </div>
+                </div>
+                <div class="upload-wrapper" id="wrap_ccV" style="flex:1;">
+                    <span class="lbl-doc-title" id="lblText_ccV">📄 CC (Verso)</span>
+                    <div class="dual-btn-container">
+                        <label for="fileCCV_gal" class="btn-micro">📂 Fich</label>
+                        <input type="file" id="fileCCV_gal" class="hidden-input">
+                        <label for="fileCCV_cam" class="btn-micro">📸 Câm</label>
+                        <input type="file" id="fileCCV_cam" accept="image/*" capture="environment" class="hidden-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📂 4. Documentos Legais</h2>
+            
+            <div class="upload-wrapper" id="wrap_caderneta">
+                <span class="lbl-doc-title" id="lblText_caderneta">📄 Caderneta Predial</span>
+                <div class="dual-btn-container">
+                    <label for="fileCaderneta_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCaderneta_gal" class="hidden-input">
+                    <label for="fileCaderneta_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCaderneta_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+            
+            <div class="upload-wrapper" id="wrap_registo">
+                <span class="lbl-doc-title" id="lblText_registo">📄 Registo Predial</span>
+                <div class="dual-btn-container">
+                    <label for="fileRegisto_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileRegisto_gal" class="hidden-input">
+                    <label for="fileRegisto_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileRegisto_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_licenca">
+                <span class="lbl-doc-title" id="lblText_licenca">📄 Licença de Utilização</span>
+                <div class="dual-btn-container">
+                    <label for="fileLicenca_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileLicenca_gal" class="hidden-input">
+                    <label for="fileLicenca_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileLicenca_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_certificado">
+                <span class="lbl-doc-title" id="lblText_certificado">📄 Certificado Energético</span>
+                <div class="dual-btn-container">
+                    <label for="fileCertificado_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileCertificado_gal" class="hidden-input">
+                    <label for="fileCertificado_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileCertificado_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+
+            <div class="upload-wrapper" id="wrap_outros">
+                <span class="lbl-doc-title" id="lblText_outros">📄 Outros Documentos</span>
+                <div class="dual-btn-container">
+                    <label for="fileOutros_gal" class="btn-micro">📂 Ficheiros</label>
+                    <input type="file" id="fileOutros_gal" class="hidden-input">
+                    <label for="fileOutros_cam" class="btn-micro">📸 Câmara</label>
+                    <input type="file" id="fileOutros_cam" accept="image/*" capture="environment" class="hidden-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📷 5. Motor de Vistoria</h2>
+            <select id="selectDivisao" class="select-divisao" style="width: 100%; margin-bottom: 15px;">
+                <option value="Exterior / Fachada">Exterior / Fachada</option>
+                <option value="Hall de Entrada">Hall de Entrada</option>
+                <option value="Sala de Estar / Jantar">Sala de Estar / Jantar</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Quarto Principal (Suite)">Quarto Principal (Suite)</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Casa de Banho">Casa de Banho</option>
+                <option value="Jardim / Piscina">Jardim / Piscina</option>
+                <option value="Cave / Arrumos">Cave / Arrumos</option>
+            </select>
+
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <button id="btnLigarLente" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; padding:10px;">GRELHA</button>
+                
+                <label for="inputVistoria_cam" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📸 CÂMARA</label>
+                <input type="file" id="inputVistoria_cam" accept="image/*" capture="environment" class="hidden-input">
+                
+                <label for="inputVistoria_gal" class="btn-acao" style="margin-bottom:0; flex:1; font-size:9px; background:#222; color:#d4af37; border: 1px solid #d4af37; padding:10px; display:flex; justify-content:center; align-items:center;">📂 FICHEIROS</label>
+                <input type="file" id="inputVistoria_gal" class="hidden-input">
+            </div>
+            
+            <div id="moduloCamera">
+                <video id="videoElement" autoplay playsinline></video>
+                <div class="grid-overlay"><div class="grid-line v-line-1"></div><div class="grid-line v-line-2"></div><div class="grid-line h-line-1"></div><div class="grid-line h-line-2"></div></div>
+                <button id="btnDisparoLente">📸 ALINHAR E DISPARAR</button>
+                <canvas id="canvasOculto" style="display:none;"></canvas>
+            </div>
+            
+            <div class="status" id="micStatus">Pronto para operar.</div>
+            <img id="previewImagem" src="" alt="Preview">
+            
+            <div class="painel-ditado" id="painelDitado">
+                <button id="btnIconeMic" class="btn-icone-mic">🎙️</button>
+                <div style="width: 100%;">
+                    <textarea id="visorNota" class="visor-texto" placeholder="Dite a descrição do espaço..."></textarea>
+                </div>
+            </div>
+            
+            <div class="painel-tags" id="painelTags">
+                <button class="smart-tag" onclick="adicionarTag('☀️ Exposição Solar Privilegiada')">+ Sol</button>
+                <button class="smart-tag" onclick="adicionarTag('💎 Acabamentos Premium')">+ Premium</button>
+                <button class="smart-tag" onclick="adicionarTag('🔑 Pronto a Habitar')">+ Habitar</button>
+                <button class="smart-tag" onclick="adicionarTag('🌳 Zona Tranquila')">+ Paz</button>
+                <button class="smart-tag" onclick="adicionarTag('📐 Áreas Generosas')">+ Áreas</button>
+            </div>
+            
+            <button id="guardarBtn" class="btn-acao btn-guardar">GUARDAR ESPAÇO E GPS</button>
+        </div>
+
+        <div class="card">
+            <h2>✍️ 6. Assinatura do Proprietário</h2>
+            <canvas id="canvasAssinatura"></canvas>
+            <button id="btnLimparCanvas" class="btn-limpar-canvas">Limpar Quadro</button>
+        </div>
+
+        <div class="card">
+            <h2>🗂️ EMISSÃO E DOWNLOADS</h2>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <input type="text" id="inputNomePdf" class="input-meta" placeholder="Nome do Ficheiro (Ex: Angariacao_ID001)">
+            </div>
+            
+            <div id="log-ui">Ainda sem registos técnicos nesta pasta.</div>
+            <button id="gerarPdfBtn" class="btn-acao btn-pdf">GERAR DOSSIER DE ANGARIAÇÃO (PDF)</button>
+        </div>
+    </div>
+
+    <div id="pdf-render-zone"></div>
+
+    <script>
+        // MUDANÇA 1: Usar a memória BETA
+        let crmData = JSON.parse(localStorage.getItem('pov_beta_test')) || [];
+        let activeIndex = -1; 
+        let metadados = {}; let docsApp = {}; let memoriaApp = []; let assinaturaSalvaBase64 = "";
+        let tempImagemBase64 = ""; let streamAtivo = null;
+
+        const uiDashboard = document.getElementById('crm-dashboard');
+        const uiEditor = document.getElementById('app-ui-container');
+        const listaCRM = document.getElementById('lista-crm');
+
+        function guardarNoCRM() {
+            if (activeIndex === -1) return;
+            crmData[activeIndex] = {
+                id: crmData[activeIndex].id || new Date().getTime(),
+                titulo: metadados.local || metadados.ref || "Nova Angariação " + (activeIndex + 1),
+                data: crmData[activeIndex].data || new Date().toLocaleDateString('pt-PT'),
+                meta: metadados, docs: docsApp, fotos: memoriaApp, assinatura: assinaturaSalvaBase64
+            };
+            // MUDANÇA 2: Guardar na memória BETA
+            localStorage.setItem('pov_beta_test', JSON.stringify(crmData));
+            renderizarDashboard();
+        }
+
+        function renderizarDashboard() {
+            listaCRM.innerHTML = "";
+            if(crmData.length === 0) { listaCRM.innerHTML = "<p style='color:#666; font-size:12px;'>Sem pastas ativas. Crie uma nova angariação.</p>"; return; }
+            
+            crmData.forEach((pasta, index) => {
+                const numFotos = pasta.fotos ? pasta.fotos.length : 0;
+                listaCRM.innerHTML += `
+                    <div class="crm-item" onclick="abrirPasta(${index})">
+                        <div>
+                            <div class="crm-title">${pasta.titulo}</div>
+                            <div class="crm-ref">Criado a: ${pasta.data} | 📷 ${numFotos} Fotos</div>
+                        </div>
+                        <div style="color:#d4af37; font-size:18px;">➔</div>
+                    </div>`;
+            });
+        }
+
+        const docKeys = [
+            { key: 'logo', idText: 'lblText_logo', idWrap: 'wrap_logo', txt: 'Logótipo da Agência' },
+            { key: 'ccF', idText: 'lblText_ccF', idWrap: 'wrap_ccF', txt: 'CC (Frente)' },
+            { key: 'ccV', idText: 'lblText_ccV', idWrap: 'wrap_ccV', txt: 'CC (Verso)' },
+            { key: 'caderneta', idText: 'lblText_caderneta', idWrap: 'wrap_caderneta', txt: 'Caderneta Predial' },
+            { key: 'registo', idText: 'lblText_registo', idWrap: 'wrap_registo', txt: 'Registo Predial' },
+            { key: 'licenca', idText: 'lblText_licenca', idWrap: 'wrap_licenca', txt: 'Licença de Utilização' },
+            { key: 'certificado', idText: 'lblText_certificado', idWrap: 'wrap_certificado', txt: 'Certificado Energético' },
+            { key: 'outros', idText: 'lblText_outros', idWrap: 'wrap_outros', txt: 'Outros Documentos' }
+        ];
+
+        function abrirPasta(index) {
+            activeIndex = index;
+            const pasta = crmData[index];
+            metadados = pasta.meta || {}; docsApp = pasta.docs || {}; memoriaApp = pasta.fotos || []; assinaturaSalvaBase64 = pasta.assinatura || "";
+            
+            mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) el.value = metadados[b.key] || ""; });
+            
+            docKeys.forEach(d => {
+                const txtEl = document.getElementById(d.idText);
+                const wrapEl = document.getElementById(d.idWrap);
+                if(docsApp[d.key]) {
+                    txtEl.innerText = "✅ " + d.txt;
+                    txtEl.classList.add('loaded');
+                    wrapEl.classList.add('loaded');
+                } else {
+                    txtEl.innerText = "📄 " + d.txt;
+                    txtEl.classList.remove('loaded');
+                    wrapEl.classList.remove('loaded');
+                }
+            });
+
+            renderizarInterface();
+            ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height);
+            if(assinaturaSalvaBase64 !== "") { const img = new Image(); img.onload = () => ctxAssinatura.drawImage(img, 0, 0); img.src = assinaturaSalvaBase64; temAssinatura = true; } 
+            else { temAssinatura = false; }
+
+            uiDashboard.style.display = "none"; uiEditor.style.display = "block"; window.scrollTo(0,0);
+        }
+
+        document.getElementById('btnNovaPasta').addEventListener('click', () => {
+            crmData.push({ id: new Date().getTime(), titulo: "Rascunho...", data: new Date().toLocaleDateString('pt-PT'), meta: {}, docs: {}, fotos: [], assinatura: "" });
+            abrirPasta(crmData.length - 1);
+        });
+
+        document.getElementById('btnVoltarCRM').addEventListener('click', () => {
+            guardarNoCRM(); uiEditor.style.display = "none"; uiDashboard.style.display = "block"; window.scrollTo(0,0);
+        });
+
+        document.getElementById('btnLimparTudo').addEventListener('click', () => {
+            if(confirm("PERIGO: Vai apagar TODAS as pastas de clientes e fotos. Confirma?")) {
+                // MUDANÇA 3: Limpar a memória BETA
+                localStorage.removeItem('pov_beta_test'); crmData = []; renderizarDashboard();
+            }
+        });
+
+        const mapMeta = [
+            { id: 'inputAgencia', key: 'agencia' }, { id: 'inputAMI', key: 'ami' }, { id: 'inputReferencia', key: 'ref' },
+            { id: 'inputLocal', key: 'local' }, { id: 'inputPreco', key: 'preco' }, { id: 'inputNomeProp', key: 'nomeProp' },
+            { id: 'inputContactoProp', key: 'contactoProp' }, { id: 'inputMoradaProp', key: 'moradaProp' }
+        ];
+
+        mapMeta.forEach(b => { const el = document.getElementById(b.id); if(el) { el.addEventListener('input', (e) => { metadados[b.key] = e.target.value; guardarNoCRM(); }); }});
+
+        function setupDualDocUpload(idGal, idCam, lblTextId, wrapId, docKey, originalText) {
+            const handleFile = function(e) {
+                const file = e.target.files; if(!file) return;
+                
+                if (!file.type.startsWith('image/')) {
+                    alert("⚠️ Apenas fotografias/imagens são suportadas para gerar o PDF.");
+                    e.target.value = "";
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas'); 
+                        let maxW = docKey === 'logo' ? 400 : 800; 
+                        let w = img.width, h = img.height; if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                        canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        docsApp[docKey] = canvas.toDataURL('image/jpeg', 0.7); 
+                        guardarNoCRM();
+                        document.getElementById(lblTextId).innerText = "✅ " + originalText;
+                        document.getElementById(lblTextId).classList.add('loaded');
+                        document.getElementById(wrapId).classList.add('loaded');
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            };
+            document.getElementById(idGal).addEventListener('change', handleFile);
+            document.getElementById(idCam).addEventListener('change', handleFile);
+        }
+
+        setupDualDocUpload('fileLogo_gal', 'fileLogo_cam', 'lblText_logo', 'wrap_logo', 'logo', 'Logótipo da Agência');
+        setupDualDocUpload('fileCCF_gal', 'fileCCF_cam', 'lblText_ccF', 'wrap_ccF', 'ccF', 'CC (Frente)');
+        setupDualDocUpload('fileCCV_gal', 'fileCCV_cam', 'lblText_ccV', 'wrap_ccV', 'ccV', 'CC (Verso)');
+        setupDualDocUpload('fileCaderneta_gal', 'fileCaderneta_cam', 'lblText_caderneta', 'wrap_caderneta', 'caderneta', 'Caderneta Predial');
+        setupDualDocUpload('fileRegisto_gal', 'fileRegisto_cam', 'lblText_registo', 'wrap_registo', 'registo', 'Registo Predial');
+        setupDualDocUpload('fileLicenca_gal', 'fileLicenca_cam', 'lblText_licenca', 'wrap_licenca', 'licenca', 'Licença de Utilização');
+        setupDualDocUpload('fileCertificado_gal', 'fileCertificado_cam', 'lblText_certificado', 'wrap_certificado', 'certificado', 'Certificado Energético');
+        setupDualDocUpload('fileOutros_gal', 'fileOutros_cam', 'lblText_outros', 'wrap_outros', 'outros', 'Outros Documentos');
+
+        document.getElementById('btnLigarLente').addEventListener('click', async () => {
+            try {
+                streamAtivo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                document.getElementById('videoElement').srcObject = streamAtivo;
+                document.getElementById('moduloCamera').style.display = "block";
+                document.getElementById('btnLigarLente').parentElement.style.display = "none"; 
+                document.getElementById('previewImagem').style.display = "none"; document.getElementById('painelDitado').style.display = "none";
+                document.getElementById('painelTags').style.display = "none"; document.getElementById('guardarBtn').style.display = "none";
+                document.getElementById('micStatus').innerText = "Lente Técnica (Grelha) Ativada.";
+            } catch (err) { alert("Acesso à câmera negado."); }
+        });
+
+        document.getElementById('btnDisparoLente').addEventListener('click', () => {
+            const video = document.getElementById('videoElement');
+            let w = video.videoWidth, h = video.videoHeight;
+            if (w > 800) { h = h * (800 / w); w = 800; } 
+            const cvs = document.getElementById('canvasOculto'); cvs.width = w; cvs.height = h;
+            cvs.getContext('2d').drawImage(video, 0, 0, w, h);
+            concluirCapturaVistoria(cvs.toDataURL('image/jpeg', 0.7));
+            if (streamAtivo) { streamAtivo.getTracks().forEach(track => track.stop()); }
+            document.getElementById('moduloCamera').style.display = "none";
+        });
+
+        const handleVistoriaNativa = function(e) {
+            const file = e.target.files; if(!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert("⚠️ Apenas fotografias/imagens são aceites.");
+                e.target.value = "";
+                return;
+            }
+
+            document.getElementById('micStatus').innerText = "A processar ótica...";
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas'); let w = img.width, h = img.height;
+                    if (w > 800) { h = Math.round(h * 800 / w); w = 800; } 
+                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    concluirCapturaVistoria(canvas.toDataURL('image/jpeg', 0.7));
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        };
+
+        document.getElementById('inputVistoria_cam').addEventListener('change', handleVistoriaNativa);
+        document.getElementById('inputVistoria_gal').addEventListener('change', handleVistoriaNativa);
+
+        function concluirCapturaVistoria(base64Image) {
+            tempImagemBase64 = base64Image; document.getElementById('previewImagem').src = tempImagemBase64;
+            document.getElementById('btnLigarLente').parentElement.style.display = "flex"; 
+            document.getElementById('previewImagem').style.display = "block"; document.getElementById('painelDitado').style.display = "flex";
+            document.getElementById('painelTags').style.display = "flex"; document.getElementById('visorNota').value = "";
+            document.getElementById('micStatus').innerText = "Captura Efetuada. Guarde a divisão."; document.getElementById('guardarBtn').style.display = "block";
+        }
+
+        function adicionarTag(textoTag) { let textoAtual = document.getElementById('visorNota').value.trim(); let novaLinha = textoAtual.length > 0 ? '\n' : ''; document.getElementById('visorNota').value = textoAtual + novaLinha + '[✓ ' + textoTag + ']'; }
+
+        window.descarregarFoto = function(indexFoto) {
+            if(activeIndex === -1 || !memoriaApp[indexFoto]) return;
+            const item = memoriaApp[indexFoto]; const a = document.createElement('a'); a.href = item.imagem;
+            a.download = `POV_Foto_${item.categoria.replace(/[^a-zA-Z0-9]/g, '_')}_${indexFoto+1}.jpg`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        };
+
+        function renderizarInterface() {
+            const logUi = document.getElementById('log-ui');
+            if(memoriaApp.length === 0) { logUi.innerHTML = "Ainda sem registos nesta pasta."; return; }
+            logUi.innerHTML = "";
+            memoriaApp.forEach((item, index) => {
+                let txt = item.texto.length > 0 ? item.texto : "Sem comentários.";
+                logUi.innerHTML += `
+                <div class="foto-item-ui">
+                    <div class="ui-img-box" style="background-image: url('${item.imagem}');"></div>
+                    <div style="flex:1;">
+                        <div class="badge-categoria">${item.categoria}</div><p>${txt}</p>
+                        <button class="btn-dl-img" onclick="descarregarFoto(${index})">⬇️ Descarregar Original</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        document.getElementById('guardarBtn').addEventListener('click', function() {
+            this.style.display = "none"; 
+            const concluirGuardar = (coordsText) => {
+                memoriaApp.push({ categoria: document.getElementById('selectDivisao').value, imagem: tempImagemBase64, texto: document.getElementById('visorNota').value.trim(), coordenadas: coordsText, dataHora: new Date().toLocaleString('pt-PT') });
+                guardarNoCRM(); renderizarInterface();
+                tempImagemBase64 = ""; document.getElementById('visorNota').value = ""; document.getElementById('previewImagem').style.display = "none";
+                document.getElementById('painelDitado').style.display = "none"; document.getElementById('painelTags').style.display = "none"; document.getElementById('micStatus').innerText = "Registo Técnico guardado.";
+            };
+            document.getElementById('micStatus').innerText = "A captar GPS...";
+            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( (pos) => { concluirGuardar(`LAT: ${pos.coords.latitude.toFixed(5)} | LON: ${pos.coords.longitude.toFixed(5)}`); }, (err) => { concluirGuardar("Sinal GPS bloqueado"); }, { enableHighAccuracy: true, timeout: 5000 } );
+            } else { concluirGuardar("GPS não suportado."); }
+        });
+
+        const canvasAssinatura = document.getElementById('canvasAssinatura'); const ctxAssinatura = canvasAssinatura.getContext('2d');
+        let assinando = false; let temAssinatura = false; 
+        function inicializarCanvas() { const r = canvasAssinatura.parentElement.getBoundingClientRect(); canvasAssinatura.width = r.width > 0 ? r.width - 40 : window.innerWidth - 70; canvasAssinatura.height = 150; ctxAssinatura.lineWidth = 2; ctxAssinatura.lineCap = 'round'; ctxAssinatura.strokeStyle = '#000'; }
+        inicializarCanvas();
+        function getPos(e) { const r = canvasAssinatura.getBoundingClientRect(); const cx = e.touches ? e.touches.clientX : e.touches ? e.touches.clientX : e.clientX; const cy = e.touches ? e.touches.clientY : e.clientY; return { x: cx - r.left, y: cy - r.top }; }
+        canvasAssinatura.addEventListener('mousedown', (e)=>{ assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); });
+        canvasAssinatura.addEventListener('mousemove', (e)=>{ if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }});
+        canvasAssinatura.addEventListener('mouseup', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        canvasAssinatura.addEventListener('touchstart', (e)=>{ e.preventDefault(); assinando=true; const p=getPos(e); ctxAssinatura.beginPath(); ctxAssinatura.moveTo(p.x, p.y); },{passive:false});
+        canvasAssinatura.addEventListener('touchmove', (e)=>{ e.preventDefault(); if(assinando){ const p=getPos(e); ctxAssinatura.lineTo(p.x, p.y); ctxAssinatura.stroke(); temAssinatura=true; }},{passive:false});
+        canvasAssinatura.addEventListener('touchend', ()=>{ assinando=false; if(temAssinatura) { assinaturaSalvaBase64=canvasAssinatura.toDataURL('image/png'); guardarNoCRM(); } });
+        document.getElementById('btnLimparCanvas').addEventListener('click', () => { ctxAssinatura.clearRect(0, 0, canvasAssinatura.width, canvasAssinatura.height); temAssinatura = false; assinaturaSalvaBase64 = ""; guardarNoCRM(); });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function ativarDitado(inputId, btnId) {
+            if (!SpeechRecognition) return;
+            const rec = new SpeechRecognition(); rec.continuous = false; rec.lang = 'pt-PT';
+            const target = document.getElementById(inputId); const btn = document.getElementById(btnId);
+            rec.onstart = () => { btn.classList.add('recording'); };
+            rec.onresult = (e) => { 
+                let tEx = target.value.trim(); let novo = e.results[e.resultIndex].transcript.trim(); target.value = tEx.length > 0 ? tEx + " " + novo : novo;
+                if(inputId === 'visorNota' && tempImagemBase64 !== "") document.getElementById('guardarBtn').style.display = "block";
+                if(inputId === 'inputLocal') { metadados.local = target.value; guardarNoCRM(); }
+            };
+            rec.onend = () => { btn.classList.remove('recording'); }; try { rec.start(); } catch(e) {}
+        }
+        document.getElementById('micLocal').addEventListener('click', () => ativarDitado('inputLocal', 'micLocal'));
+        document.getElementById('btnIconeMic').addEventListener('click', () => ativarDitado('visorNota', 'btnIconeMic'));
+
+        document.getElementById('gerarPdfBtn').addEventListener('click', function() {
+            const btn = this; btn.innerText = "⏳ A COMPILAR DOSSIER... (Aguarde)"; btn.disabled = true;
+
+            let nomeFicheiroFinal = document.getElementById('inputNomePdf') ? document.getElementById('inputNomePdf').value.trim() : "";
+            if (nomeFicheiroFinal === "") nomeFicheiroFinal = `Ficha_Angariacao_${metadados.ref || new Date().getTime()}.pdf`;
+            if (!nomeFicheiroFinal.toLowerCase().endsWith('.pdf')) nomeFicheiroFinal += '.pdf';
+
+            const pdfZone = document.getElementById('pdf-render-zone'); pdfZone.style.display = 'block';
+
+            let htmlString = `
+                <div style="font-family: 'Montserrat', sans-serif; color: #000; width: 100%; box-sizing: border-box; margin: 0;">
+                    <table style="width: 100%; border-bottom: 2px solid #d4af37; padding-bottom: 15px; margin-bottom: 20px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: middle;">
+                                ${docsApp.logo ? `<img src="${docsApp.logo}" style="max-height: 50px; max-width: 250px;">` : `<h1 style="margin:0; font-family: 'Playfair Display', serif; font-size: 24px; color:#111;">FICHA DE ANGARIAÇÃO</h1>`}
+                            </td>
+                            <td style="width: 50%; text-align: right; vertical-align: middle;">
+                                <div style="font-weight: 700; font-size: 16px; color: #111;">${metadados.agencia || "Agência Não Definida"}</div>
+                                <div style="font-size: 10px; color: #666; margin-top: 4px;">LICENÇA AMI: ${metadados.ami || "N/A"}</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; margin-bottom: 25px; table-layout: fixed; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 10px;">
+                                <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
+                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Imóvel</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Referência:</b> ${metadados.ref || "N/A"}</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Localização:</b> ${metadados.local || "N/A"}</div>
+                                    <div style="font-size: 12px;"><b style="color:#222;">Preço de Venda:</b> ${metadados.preco || "Sob Consulta"}</div>
+                                </div>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; padding-left: 10px;">
+                                 <div style="background: #f9f9f9; padding: 15px; border: 1px solid #eee; border-left: 3px solid #d4af37; min-height: 110px;">
+                                    <div style="font-weight: 700; margin-bottom: 10px; text-transform: uppercase; font-size: 10px; color: #888; letter-spacing: 1px;">Dados do Proprietário</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Nome:</b> ${metadados.nomeProp || "N/A"}</div>
+                                    <div style="font-size: 12px; margin-bottom: 6px;"><b style="color:#222;">Contacto:</b> ${metadados.contactoProp || "N/A"}</div>
+                                    <div style="font-size: 12px;"><b style="color:#222;">Morada:</b> ${metadados.moradaProp || "N/A"}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;">
+                        <div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #111; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Status de Documentação Legal</div>
+                        <table style="width: 100%; font-size: 11px; color: #444;">
+                            <tr><td style="width: 50%; padding: 4px 0;">Cartão de Cidadão: <b style="color:${docsApp.ccF ? '#27ae60' : '#d35400'};">${docsApp.ccF ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Caderneta Predial: <b style="color:${docsApp.caderneta ? '#27ae60' : '#d35400'};">${docsApp.caderneta ? 'Entregue' : 'Pendente'}</b></td></tr>
+                            <tr><td style="width: 50%; padding: 4px 0;">Registo Predial: <b style="color:${docsApp.registo ? '#27ae60' : '#d35400'};">${docsApp.registo ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Licença de Utilização: <b style="color:${docsApp.licenca ? '#27ae60' : '#d35400'};">${docsApp.licenca ? 'Entregue' : 'Pendente'}</b></td></tr>
+                            <tr><td style="width: 50%; padding: 4px 0;">Certificado Energético: <b style="color:${docsApp.certificado ? '#27ae60' : '#d35400'};">${docsApp.certificado ? 'Entregue' : 'Pendente'}</b></td><td style="width: 50%; padding: 4px 0;">Outros Documentos: <b style="color:${docsApp.outros ? '#27ae60' : '#888'};">${docsApp.outros ? 'Entregue' : 'N/A'}</b></td></tr>
+                        </table>
+                    </div><div style="page-break-before: auto;"></div>`;
+
+            if(memoriaApp.length > 0) { htmlString += `<div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Relatório de Vistoria Técnica</div>`; }
+            memoriaApp.forEach((item, index) => {
+                let textoFormatado = item.texto.replace(/\n/g, '<br>'); if(textoFormatado === "") textoFormatado = "<span style='color:#999; font-style:italic;'>Sem comentários registados.</span>";
+                htmlString += `
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; page-break-inside: avoid; margin-bottom: 25px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
+                    <tr><td style="width: 45%; vertical-align: top; padding: 0;"><div style="width: 100%; height: 180px; border: 1px solid #ddd; background-color: #ececec; background-image: url('${item.imagem}'); background-size: cover; background-position: center;"></div></td><td style="width: 5%; padding: 0;"></td>
+                        <td style="width: 50%; vertical-align: top; padding: 0; padding-top: 5px; padding-right: 20px; box-sizing: border-box;">
+                            <div style="border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 8px; display: block; padding-right: 10px;"><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; float: left;">${item.categoria}</span><span style="font-family: 'Montserrat', sans-serif; font-size: 10px; color: #999; float: right;">REF. 0${index + 1}</span><div style="clear: both;"></div></div>
+                            <div style="font-family: 'Playfair Display', serif; font-size: 13px; color: #222; line-height: 1.5; margin: 0; min-height: 80px; width: 90%; padding-right: 20px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">${textoFormatado}</div>
+                            <div style="margin-top: 10px; font-size: 8px; color: #888; font-family: monospace; border-top: 1px dotted #ccc; padding-top: 5px;">⏳ DATA: ${item.dataHora}<br>🛰️ GPS: ${item.coordenadas}</div>
+                        </td></tr></table>`;
+            });
+
+            if (temAssinatura && assinaturaSalvaBase64 !== "") { htmlString += `<div style="display: block; width: 100%; clear: both; page-break-inside: avoid; margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px;"><img src="${assinaturaSalvaBase64}" style="max-width: 250px; max-height: 100px; display: block; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 5px;"><div style="font-family: 'Montserrat', sans-serif; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;">Validação Legal - Proprietário</div></div>`; }
+            let fotosAnexosHTML = ""; const dictAnexos = { 'ccF': 'Cartão de Cidadão (Frente)', 'ccV': 'Cartão de Cidadão (Verso)', 'caderneta': 'Caderneta Predial', 'registo': 'Registo Predial', 'licenca': 'Licença de Utilização', 'certificado': 'Certificado Energético', 'outros': 'Outros Documentos' };
+            for (const [key, label] of Object.entries(dictAnexos)) { if(docsApp[key]) { fotosAnexosHTML += `<div style="page-break-inside: avoid; margin-bottom: 30px; border: 1px solid #e0e0e0; padding: 15px; background: #fff;"><div style="font-weight: 700; font-size: 12px; color: #111; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 5px; display: inline-block;">📋 Anexo: ${label}</div><img src="${docsApp[key]}" style="max-width: 100%; max-height: 600px; display: block; margin: 0 auto;"></div>`; } }
+            if(fotosAnexosHTML !== "") { htmlString += `<div style="page-break-before: always; padding-top: 20px;"></div><div style="font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 20px; color: #d4af37; border-bottom: 2px solid #d4af37; padding-bottom: 5px;">Anexos Documentais Oficiais</div>${fotosAnexosHTML}`; }
+            htmlString += `</div>`; 
+            
+            pdfZone.innerHTML = htmlString; 
+            window.scrollTo(0, 0);
+
+            setTimeout(() => {
+                const opt = { 
+                    margin:, 
+                    filename: nomeFicheiroFinal, 
+                    image: { type: 'jpeg', quality: 0.90 }, 
+                    html2canvas: { scale: 1.5, useCORS: true, letterRendering: true, scrollY: 0 }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+                };
+                
+                html2pdf().set(opt).from(pdfZone).save().then(() => { 
+                    pdfZone.style.display = 'none'; 
+                    pdfZone.innerHTML = ''; 
+                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
+                    btn.disabled = false;
+                }).catch(err => {
+                    alert("Aviso: Falha de memória no dispositivo. Limpe a cache e tente novamente."); 
+                    btn.innerText = "GERAR DOSSIER DE ANGARIAÇÃO (PDF)"; 
+                    btn.disabled = false;
+                });
+            }, 1000); 
+        });
+
+        renderizarDashboard();
+    </script>
+</body>
+</html>
